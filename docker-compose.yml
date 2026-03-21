@@ -1,13 +1,13 @@
-version: '3.8'
-
 services:
 
   postgres:
     image: postgres:15-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_DB:       printing_db
       POSTGRES_USER:     printing_user
-      POSTGRES_PASSWORD: printing_pass
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -22,11 +22,6 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   app:
     build: .

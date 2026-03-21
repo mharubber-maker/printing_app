@@ -25,3 +25,6 @@ static/uploads/*
 # OS
 .DS_Store
 Thumbs.db
+.env
+write_*.py
+fix_*.py
