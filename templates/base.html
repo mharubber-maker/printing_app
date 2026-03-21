@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}بيت الطباعة والألوان{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/tokens.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% block header %}
+        {% include "components/header.html" %}
+    {% endblock %}
+
+    <main style="max-width:960px;margin:0 auto;padding:0 var(--space-4) var(--space-4)">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "components/toast.html" %}
+    {% include "components/modal.html" %}
+
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/modal.js"></script>
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/core.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

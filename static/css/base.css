@@ -1,0 +1,26 @@
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{
+    font-family:var(--font-family); background:var(--bg-page);
+    color:var(--text-primary); min-height:100vh; padding:var(--space-4);
+    direction:rtl; transition:background var(--transition-base),color var(--transition-base);
+}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg-card);}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:var(--radius-full);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes pulseGold{0%,100%{box-shadow:var(--shadow-gold);}50%{box-shadow:0 0 40px rgba(245,166,35,0.7);}}
+@keyframes rainbowFlow{0%{background-position:0% 0%;}100%{background-position:200% 0%;}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.anim-fade-up{animation:fadeInUp var(--transition-slow) ease forwards;}
+.anim-fade{animation:fadeIn var(--transition-base) ease forwards;}
+.anim-slide{animation:slideDown var(--transition-base) ease forwards;}
+.delay-1{animation-delay:0.1s;opacity:0;}
+.delay-2{animation-delay:0.2s;opacity:0;}
+.delay-3{animation-delay:0.3s;opacity:0;}
+.rainbow-bar{
+    height:3px; background:var(--rainbow);
+    background-size:200% 100%;
+    animation:rainbowFlow 3s linear infinite;
+    border-radius:var(--radius-full);
+}

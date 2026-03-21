@@ -1,0 +1,50 @@
+:root {
+    --gold:#f5a623; --gold-dark:#c9820a; --gold-light:#ffd700;
+    --gold-glow:rgba(245,166,35,0.4); --gold-subtle:rgba(245,166,35,0.1);
+    --font-family:"Cairo",sans-serif;
+    --text-xs:11px; --text-sm:13px; --text-base:15px; --text-lg:18px; --text-xl:22px;
+    --font-normal:400; --font-bold:700; --font-black:900;
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px;
+    --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px; --radius-full:9999px;
+    --transition-fast:150ms ease; --transition-base:300ms ease; --transition-slow:500ms ease;
+    --shadow-sm:0 2px 8px rgba(0,0,0,0.06); --shadow-md:0 4px 16px rgba(0,0,0,0.10);
+    --shadow-lg:0 8px 32px rgba(0,0,0,0.15);
+    --shadow-gold:0 4px 20px rgba(245,166,35,0.4);
+    --shadow-glow:0 0 30px rgba(245,166,35,0.4);
+}
+[data-theme="light"] {
+    --bg-page:#f5f0e8;
+    --bg-card:#ffffff;
+    --bg-card-hover:#fdf8f0;
+    --bg-table-head:#fdf5e8;
+    --bg-input:#ffffff;
+    --bg-modal:#ffffff;
+    --bg-overlay:rgba(0,0,0,0.5);
+    --text-primary:#1a1008;
+    --text-secondary:#555555;
+    --text-muted:#888888;
+    --border-color:#e8d8b8;
+    --border-focus:#f5a623;
+    --badge-ongoing-bg:#fff8e8; --badge-ongoing-fg:#c9820a; --badge-ongoing-br:#f5d890;
+    --badge-ready-bg:#e8fff5;   --badge-ready-fg:#00aa66;   --badge-ready-br:#90f5cc;
+    --badge-done-bg:#e8f0ff;    --badge-done-fg:#4466cc;    --badge-done-br:#99aaee;
+    --rainbow:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff88,#0088ff,#8800ff);
+}
+[data-theme="dark"] {
+    --bg-page:#0d0d1a;
+    --bg-card:rgba(255,255,255,0.04);
+    --bg-card-hover:rgba(255,255,255,0.07);
+    --bg-table-head:rgba(0,0,0,0.4);
+    --bg-input:rgba(255,255,255,0.06);
+    --bg-modal:#0f0f1a;
+    --bg-overlay:rgba(0,0,0,0.8);
+    --text-primary:#ffffff;
+    --text-secondary:rgba(255,255,255,0.65);
+    --text-muted:rgba(255,255,255,0.35);
+    --border-color:rgba(255,255,255,0.1);
+    --border-focus:rgba(245,166,35,0.7);
+    --badge-ongoing-bg:rgba(245,166,35,0.15); --badge-ongoing-fg:#f5a623; --badge-ongoing-br:rgba(245,166,35,0.35);
+    --badge-ready-bg:rgba(0,200,100,0.15);    --badge-ready-fg:#00dd88;   --badge-ready-br:rgba(0,200,100,0.35);
+    --badge-done-bg:rgba(99,102,241,0.15);    --badge-done-fg:#818cf8;    --badge-done-br:rgba(99,102,241,0.35);
+    --rainbow:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff88,#0088ff,#8800ff);
+}

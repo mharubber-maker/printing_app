@@ -1,0 +1,33 @@
+base = '/home/ghazal/printing_app'
+
+content = """<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
+
+    <div style="border-radius:16px;padding:24px;position:relative;overflow:hidden;
+                background:#1a0f00;border:1px solid rgba(245,166,35,0.4);
+                box-shadow:0 4px 20px rgba(245,166,35,0.15)">
+        <div style="font-size:44px;font-weight:900;color:#f5a623;line-height:1">{{ stats.total }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:10px;font-weight:600">إجمالى الطلبات</div>
+        <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:36px;opacity:0.15">📊</div>
+    </div>
+
+    <div style="border-radius:16px;padding:24px;position:relative;overflow:hidden;
+                background:#1a0800;border:1px solid rgba(255,102,68,0.4);
+                box-shadow:0 4px 20px rgba(255,102,68,0.1)">
+        <div style="font-size:44px;font-weight:900;color:#ff6644;line-height:1">{{ stats.ongoing }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:10px;font-weight:600">طلبات جارية</div>
+        <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:36px;opacity:0.15">⚡</div>
+    </div>
+
+    <div style="border-radius:16px;padding:24px;position:relative;overflow:hidden;
+                background:#001a0d;border:1px solid rgba(0,170,102,0.4);
+                box-shadow:0 4px 20px rgba(0,170,102,0.1)">
+        <div style="font-size:44px;font-weight:900;color:#00aa66;line-height:1">{{ stats.delivered }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:10px;font-weight:600">تم التسليم</div>
+        <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:36px;opacity:0.15">✅</div>
+    </div>
+
+</div>"""
+
+with open(f'{base}/templates/partials/stats.html', 'w') as f:
+    f.write(content)
+print('✅ stats.html اتصلح')

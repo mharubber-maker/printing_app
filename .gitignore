@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+venv/
+.env
+
+# Uploads
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Database
+*.sql
+*.db
+
+# Docker
+.docker/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db

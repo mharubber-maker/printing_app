@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}لوحة التحكم — بيت الطباعة{% endblock %}
+
+{% block content %}
+
+    <div id="stats-section">
+        {% include "partials/stats.html" %}
+    </div>
+
+    {% include "components/search.html" %}
+
+    <div id="table-section">
+        {% include "partials/orders_table.html" %}
+    </div>
+
+{% endblock %}

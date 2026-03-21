@@ -1,0 +1,20 @@
+<div style="border-radius:16px;border:1px solid var(--border-color);padding:16px;margin-bottom:16px;background:var(--bg-card)">
+    <form method="get" action="/" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <input type="text" name="search" value="{{ search }}"
+               placeholder="🔍 ابحث باسم العميل أو رقم الطلب..."
+               style="flex:1;min-width:200px;background:var(--bg-input);border:1px solid var(--border-color);border-radius:12px;padding:10px 16px;color:var(--text-primary);font-family:Cairo,sans-serif;font-size:13px;text-align:right;outline:none;transition:border-color 0.2s"
+               onfocus="this.style.borderColor='#f5a623'"
+               onblur="this.style.borderColor='var(--border-color)'">
+        <select name="status"
+                style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:12px;padding:10px 12px;color:var(--text-primary);font-family:Cairo,sans-serif;font-size:12px;outline:none;min-width:130px;cursor:pointer">
+            <option value="">كل الحالات</option>
+            <option value="جارى" {% if status=="جارى" %}selected{% endif %}>جارى</option>
+            <option value="جاهز" {% if status=="جاهز" %}selected{% endif %}>جاهز</option>
+            <option value="تم التسليم" {% if status=="تم التسليم" %}selected{% endif %}>تم التسليم</option>
+        </select>
+        <button type="submit" style="background:linear-gradient(135deg,#f5a623,#ffd700);color:#1a1008;font-weight:900;border:none;border-radius:12px;padding:10px 20px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px">بحث</button>
+        {% if search or status %}
+        <a href="/" style="color:var(--text-muted);border:1px solid var(--border-color);border-radius:12px;padding:10px 16px;text-decoration:none;font-size:13px;background:var(--bg-card)">مسح</a>
+        {% endif %}
+    </form>
+</div>
