@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from config.database import get_db, engine, Base
 from config.settings import settings
 from domain.orders.repository import OrderRepository
+from domain.orders.model import Order, Customer, OrderItem, OrderImage, Payment, ProductionLog, User
 from domain.orders.router import router as orders_router
 import uvicorn
 
