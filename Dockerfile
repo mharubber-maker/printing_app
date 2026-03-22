@@ -12,6 +12,6 @@ COPY . .
 # مجلد الصور
 RUN mkdir -p static/uploads
 
-EXPOSE 8000
+EXPOSE 7860
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
