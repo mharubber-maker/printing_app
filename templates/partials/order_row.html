@@ -34,6 +34,11 @@
                 hx-delete="/orders/{{ order.id }}"
                 hx-target="#order-{{ order.id }}"
                 hx-swap="outerHTML"
-                hx-confirm="هتحذف الطلب {{ order.number }}؟">🗑️</button>
+                hx-confirm="هتحذف الطلب {{ order.number }}؟">
+            🗑️
+        </button>
+        <a href="/orders/{{ order.id }}/pdf" target="_blank"
+           style="color:rgba(245,166,35,0.7);font-size:18px;text-decoration:none;padding:0 4px"
+           title="تحميل PDF">📄</a🗑️</button>
     </td>
 </tr>

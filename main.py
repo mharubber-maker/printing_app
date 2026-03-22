@@ -9,6 +9,11 @@ from domain.orders.repository import OrderRepository
 from domain.orders.model import Order, Customer, OrderItem, OrderImage, Payment, ProductionLog, User
 from domain.orders.router import router as orders_router
 import uvicorn
+import io
+from fastapi.responses import StreamingResponse
+from jinja2 import Environment, FileSystemLoader
+from weasyprint import HTML
+from datetime import datetime
 
 # إنشاء الجداول
 Base.metadata.create_all(bind=engine)
@@ -60,6 +65,31 @@ async def get_stats(
         "request": request,
         "stats":   stats,
     })
+
+
+@app.get("/orders/{order_id}/pdf")
+async def generate_pdf(
+    order_id: str,
+    db: Session = Depends(get_db),
+):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        return HTMLResponse("الطلب مش موجود", status_code=404)
+
+    env = Environment(loader=FileSystemLoader("templates"))
+    template = env.get_template("pdf/invoice.html")
+    html_content = template.render(
+        order=order,
+        now=datetime.now().strftime("%d/%m/%Y %H:%M")
+    )
+
+    pdf_bytes = HTML(string=html_content).write_pdf()
+
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={order.number}.pdf"}
+    )
 
 
 if __name__ == "__main__":
