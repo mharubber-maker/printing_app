@@ -28,6 +28,21 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Templates
 templates = Jinja2Templates(directory="templates")
 
+# ===== Custom Jinja Filters (Null Safety) =====
+def format_currency(value):
+    if value is None: return "0.00"
+    try: return f"{float(value):.2f}"
+    except: return "0.00"
+
+def format_date(value):
+    if not value: return "—"
+    try: return value.strftime("%d/%m/%Y")
+    except: return str(value)
+
+templates.env.filters["currency"] = format_currency
+templates.env.filters["date"] = format_date
+
+
 # Routers
 app.include_router(orders_router)
 

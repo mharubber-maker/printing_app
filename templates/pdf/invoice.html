@@ -266,9 +266,9 @@
                 </span>
             </div>
             <div class="info-box-sub">
-                📅 تاريخ الطلب: {{ order.created_at.strftime("%d/%m/%Y") }}
+                📅 تاريخ الطلب: {{ order.created_at | date }}
                 {% if order.delivery_date %}
-                | 🚚 التسليم: {{ order.delivery_date.strftime("%d/%m/%Y") }}
+                | 🚚 التسليم: {{ order.delivery_date | date }}
                 {% endif %}
             </div>
         </div>
@@ -331,11 +331,11 @@
             </div>
             <div class="total-row">
                 <span class="total-label">المدفوع</span>
-                <span class="total-value" style="color:#00aa66">{{ "%.2f"|format(order.paid_amount) }} جنيه</span>
+                <span class="total-value" style="color:#00aa66">{{ order.paid_amount | currency }} جنيه</span>
             </div>
             <div class="total-row">
                 <span class="total-label">المتبقى</span>
-                <span class="total-value">{{ "%.2f"|format(order.remaining_amount) }} جنيه</span>
+                <span class="total-value">{{ order.remaining_amount | currency }} جنيه</span>
             </div>
         </div>
     </div>
