@@ -11,7 +11,7 @@ class OrderRepository:
         query = self.db.query(Order).join(Order.customer, isouter=True)
         if search:
             query = query.filter(or_(Customer.name.ilike(f"%{search}%"), Order.number.ilike(f"%{search}%"), Customer.phone.ilike(f"%{search}%")))
-        if status: query = query.filter(Order.status == status)
+        if status and status not in ["كل الحالات", "all", " "]: query = query.filter(Order.status == status)
         return query.order_by(Order.created_at.desc()).all()
 
     def get_by_id(self, order_id: str) -> Optional[Order]:
