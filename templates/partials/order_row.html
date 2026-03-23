@@ -4,9 +4,9 @@
     onmouseout="this.style.background=''">
     <td style="padding:12px 16px">
         <div style="font-family:monospace;font-weight:900;font-size:13px;color:#f5a623">{{ order.number }}</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:2px" dir="ltr">{{ order.created_at.strftime("%d/%m/%Y") }}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px" dir="ltr">{{ order.created_at | date }}</div>
         {% if order.delivery_date %}
-        <div style="font-size:10px;color:#ff8844;margin-top:2px" dir="ltr">🚚 {{ order.delivery_date.strftime("%d/%m/%Y") }}</div>
+        <div style="font-size:10px;color:#ff8844;margin-top:2px" dir="ltr">🚚 {{ order.delivery_date | date }}</div>
         {% endif %}
     </td>
     <td style="padding:12px 16px">
@@ -39,6 +39,6 @@
         </button>
         <a href="/orders/{{ order.id }}/pdf" target="_blank"
            style="color:rgba(245,166,35,0.7);font-size:18px;text-decoration:none;padding:0 4px"
-           title="تحميل PDF">📄</a🗑️</button>
+           title="تحميل PDF">📄</a>
     </td>
 </tr>
