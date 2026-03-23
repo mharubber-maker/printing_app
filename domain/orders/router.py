@@ -47,7 +47,7 @@ async def add_order(
 @router.post("/{order_id}/status", response_class=HTMLResponse)
 async def update_status(
     request:    Request,
-    order_id:   int,
+    order_id: str,
     new_status: str           = Form(...),
     service:    OrderService  = Depends(get_service),
 ):
@@ -61,7 +61,7 @@ async def update_status(
 
 @router.delete("/{order_id}", response_class=HTMLResponse)
 async def delete_order(
-    order_id: int,
+    order_id: str,
     service:  OrderService = Depends(get_service),
 ):
     service.delete_order(order_id)

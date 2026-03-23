@@ -10,12 +10,12 @@
         {% endif %}
     </td>
     <td style="padding:12px 16px">
-        <div style="font-weight:700;color:var(--text-primary);font-size:13px">{{ order.customer_name }}</div>
+        <div style="font-weight:700;color:var(--text-primary);font-size:13px">{{ order.customer.name if order.customer else '—' }}</div>
         {% if order.customer_phone %}
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px" dir="ltr">{{ order.customer_phone }}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px" dir="ltr">{{ order.customer.phone if order.customer and order.customer.phone else '' }}</div>
         {% endif %}
     </td>
-    <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary)">{{ order.length }}م × {{ order.width }}م</td>
+    <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary)">{{ order.items[0].length if order.items else '—' }}م × {{ order.items[0].width if order.items else '—' }}م</td>
     <td style="padding:12px 16px;font-weight:900;color:#f5a623;font-size:14px">{{ order.area_display }} م²</td>
     <td style="padding:12px 16px">
         <form hx-post="/orders/{{ order.id }}/status" hx-target="#order-{{ order.id }}" hx-swap="outerHTML">
@@ -27,18 +27,20 @@
             </select>
         </form>
     </td>
-    <td style="padding:12px 16px">
-        <button style="background:none;border:none;cursor:pointer;color:rgba(255,100,100,0.5);font-size:18px;transition:color 0.2s"
-                onmouseover="this.style.color='rgba(255,80,80,0.9)'"
-                onmouseout="this.style.color='rgba(255,100,100,0.5)'"
+    <td style="padding:12px 16px; display:flex; align-items:center; gap:12px; justify-content:flex-end;">
+        <a href="/orders/{{ order.id }}/pdf" target="_blank"
+           style="color:rgba(245,166,35,0.9);font-size:20px;text-decoration:none;transition:transform 0.2s"
+           onmouseover="this.style.transform='scale(1.2)'"
+           onmouseout="this.style.transform='scale(1)'"
+           title="طباعة الفاتورة PDF">📄</a>
+           
+        <button style="background:none;border:none;cursor:pointer;color:rgba(255,100,100,0.6);font-size:20px;transition:all 0.2s"
+                onmouseover="this.style.color='rgba(255,50,50,1)'; this.style.transform='scale(1.2)'"
+                onmouseout="this.style.color='rgba(255,100,100,0.6)'; this.style.transform='scale(1)'"
                 hx-delete="/orders/{{ order.id }}"
                 hx-target="#order-{{ order.id }}"
                 hx-swap="outerHTML"
-                hx-confirm="هتحذف الطلب {{ order.number }}؟">
-            🗑️
-        </button>
-        <a href="/orders/{{ order.id }}/pdf" target="_blank"
-           style="color:rgba(245,166,35,0.7);font-size:18px;text-decoration:none;padding:0 4px"
-           title="تحميل PDF">📄</a>
+                hx-confirm="هتحذف الطلب {{ order.number }}؟"
+                title="حذف الطلب">🗑️</button>
     </td>
 </tr>
