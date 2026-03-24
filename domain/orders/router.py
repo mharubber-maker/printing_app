@@ -12,28 +12,30 @@ from typing import Optional
 router = APIRouter(prefix="/orders", tags=["orders"])
 templates = Jinja2Templates(directory="templates")
 
-
 def get_service(db: Session = Depends(get_db)) -> OrderService:
     return OrderService(OrderRepository(db))
 
-
 @router.post("/add", response_class=HTMLResponse)
 async def add_order(
-    request:       Request,
-    customer_name: str            = Form(...),
-    customer_phone:str            = Form(""),
-    length:        float          = Form(...),
-    width:         float          = Form(...),
-    notes:         str            = Form(""),
-    delivery_date: Optional[str]  = Form(None),
-    image:         UploadFile     = File(None),
-    service:       OrderService   = Depends(get_service),
+    request:        Request,
+    customer_name:  str            = Form(...),
+    customer_phone: str            = Form(""),
+    length:         float          = Form(...),
+    width:          float          = Form(...),
+    price_per_m2:   float          = Form(0),
+    paid_amount:    float          = Form(0),
+    notes:          str            = Form(""),
+    delivery_date:  Optional[str]  = Form(None),
+    image:          UploadFile     = File(None),
+    service:        OrderService   = Depends(get_service),
 ):
     data = OrderCreate(
         customer_name=customer_name,
         customer_phone=customer_phone,
         length=length,
         width=width,
+        price_per_m2=price_per_m2,
+        paid_amount=paid_amount,
         notes=notes,
         delivery_date=date.fromisoformat(delivery_date) if delivery_date else None,
     )
@@ -43,13 +45,12 @@ async def add_order(
         {"request": request, "order": order}
     )
 
-
 @router.post("/{order_id}/status", response_class=HTMLResponse)
 async def update_status(
     request:    Request,
     order_id: str,
-    new_status: str           = Form(...),
-    service:    OrderService  = Depends(get_service),
+    new_status: str            = Form(...),
+    service:    OrderService   = Depends(get_service),
 ):
     data  = OrderUpdateStatus(new_status=new_status)
     order = service.update_status(order_id, data)
@@ -57,7 +58,6 @@ async def update_status(
         "partials/order_row.html",
         {"request": request, "order": order}
     )
-
 
 @router.delete("/{order_id}", response_class=HTMLResponse)
 async def delete_order(
