@@ -55,11 +55,8 @@
 </div>
 
 <script>
-    // استخدام Event Delegation لضمان عمل السكربت مع HTMX 
-    // هذا الأسلوب لا يموت عند إعادة بناء الـ DOM
+    // 1. الآلة الحاسبة الفورية وإدارة حقول الدفع (Event Delegation)
     document.body.addEventListener('input', function(e) {
-        
-        // 1. معالجة إظهار/إخفاء وإلزامية حقل التحويل
         if (e.target.id === 'payment-method-select') {
             const refContainer = document.getElementById('payment-ref-container');
             const refInput = document.getElementById('payment-ref-input');
@@ -69,11 +66,10 @@
             } else {
                 refContainer.style.display = 'none';
                 refInput.removeAttribute('required');
-                refInput.value = ''; // تفريغ الحقل لمنع التلوث
+                refInput.value = '';
             }
         }
 
-        // 2. الآلة الحاسبة الذكية المربوطة بـ class
         if (e.target.classList.contains('smart-calc')) {
             const l = parseFloat(document.getElementById('calc-length')?.value) || 0;
             const w = parseFloat(document.getElementById('calc-width')?.value) || 0;
@@ -84,12 +80,7 @@
             const area = l * w;
             const total = area * p;
             
-            // حماية فورية للـ UI: منع كتابة مبلغ أكبر من الإجمالي
-            if (paid > total && total > 0) {
-                paidInput.value = total;
-                paid = total;
-            }
-
+            if (paid > total && total > 0) { paidInput.value = total; paid = total; }
             const remaining = total - paid;
 
             document.getElementById('res-area').innerText = area.toFixed(2) + ' م²';
@@ -97,17 +88,43 @@
 
             const statusEl = document.getElementById('res-status');
             if (total === 0) {
-                statusEl.innerText = 'بانتظار السعر ⏳';
-                statusEl.style.color = 'var(--text-muted)';
+                statusEl.innerText = 'بانتظار السعر ⏳'; statusEl.style.color = 'var(--text-muted)';
             } else if (remaining <= 0) {
-                statusEl.innerText = 'خالص ✅';
-                statusEl.style.color = '#10b981';
+                statusEl.innerText = 'خالص ✅'; statusEl.style.color = '#10b981';
             } else if (paid > 0) {
-                statusEl.innerText = `متبقي: ${remaining.toFixed(1)} ج 🟡`;
-                statusEl.style.color = '#f5a623';
+                statusEl.innerText = `متبقي: ${remaining.toFixed(1)} ج 🟡`; statusEl.style.color = '#f5a623';
             } else {
-                statusEl.innerText = `آجل (لم يدفع) 🔴`;
-                statusEl.style.color = '#ef4444';
+                statusEl.innerText = `آجل (لم يدفع) 🔴`; statusEl.style.color = '#ef4444';
+            }
+        }
+    });
+
+    // 2. مراقب HTMX: التنظيف والإغلاق التلقائي بعد الحفظ بنجاح
+    document.body.addEventListener('htmx:afterRequest', function(evt) {
+        // نتأكد أن الحدث قادم من فورم إضافة الطلب وأن العملية تمت بنجاح
+        if (evt.detail.target.id === 'orders-table-body' && evt.detail.successful) {
+            
+            // أ. إغلاق النافذة المنبثقة
+            if (typeof closeModal === 'function') {
+                closeModal();
+            } else {
+                document.getElementById('main-modal').classList.add('hidden');
+            }
+            
+            // ب. تصفير الفورم
+            document.getElementById('order-form').reset();
+            
+            // ج. تصفير الشاشة الحاسبة
+            document.getElementById('res-area').innerText = '0 م²';
+            document.getElementById('res-total').innerText = '0 ج';
+            document.getElementById('res-status').innerText = 'لم يدفع 🔴';
+            document.getElementById('res-status').style.color = '#ef4444';
+            document.getElementById('payment-ref-container').style.display = 'none';
+
+            // د. إخفاء رسالة "مفيش طلبات" إذا كانت موجودة (UI Fix)
+            const emptyMsg = document.querySelector('#orders-table-body td[colspan="6"]');
+            if (emptyMsg) {
+                emptyMsg.parentElement.style.display = 'none';
             }
         }
     });
