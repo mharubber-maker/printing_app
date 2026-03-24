@@ -16,27 +16,22 @@ def get_service(db: Session = Depends(get_db)) -> OrderService: return OrderServ
 
 @router.post("/add", response_class=HTMLResponse)
 async def add_order(
-    request:        Request,
-    customer_name:  str            = Form(...),
-    customer_phone: str            = Form(""),
-    lengths:        List[float]    = Form(...),
-    widths:         List[float]    = Form(...),
-    prices_per_m2:  List[float]    = Form(...), # استقبال قائمة الأسعار
-    paid_amount:    float          = Form(0),
-    payment_method: str            = Form("كاش"),
-    payment_ref:    str            = Form(""),
-    notes:          str            = Form(""),
-    delivery_date:  Optional[str]  = Form(None),
-    image:          UploadFile     = File(None),
-    service:        OrderService   = Depends(get_service),
+    request: Request,
+    customer_name: str = Form(...), customer_phone: str = Form(""), customer_address: str = Form(""),
+    lengths: List[float] = Form(...), widths: List[float] = Form(...), prices_per_m2: List[float] = Form(...),
+    item_images: List[UploadFile] = File(default=[]), # استقبال صور السجاد
+    paid_amount: float = Form(0), payment_method: str = Form("كاش"), payment_ref: str = Form(""),
+    shipping_company: str = Form(""), receipt_date: Optional[str] = Form(None), delivery_date: Optional[str] = Form(None),
+    notes: str = Form(""), service: OrderService = Depends(get_service),
 ):
     data = OrderCreate(
-        customer_name=customer_name, customer_phone=customer_phone,
+        customer_name=customer_name, customer_phone=customer_phone, customer_address=customer_address,
         lengths=lengths, widths=widths, prices_per_m2=prices_per_m2,
         paid_amount=paid_amount, payment_method=payment_method, payment_ref=payment_ref,
-        notes=notes, delivery_date=date.fromisoformat(delivery_date) if delivery_date else None,
+        shipping_company=shipping_company, receipt_date=date.fromisoformat(receipt_date) if receipt_date else None,
+        delivery_date=date.fromisoformat(delivery_date) if delivery_date else None, notes=notes
     )
-    order = service.create_order(data, image)
+    order = service.create_order(data, item_images)
     return templates.TemplateResponse("partials/order_row.html", {"request": request, "order": order})
 
 @router.post("/{order_id}/status", response_class=HTMLResponse)

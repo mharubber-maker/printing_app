@@ -9,22 +9,30 @@ class OrderService:
     def get_all(self, search: str = "", status: str = "") -> list[Order]: return self.repo.get_all(search=search, status=status)
     def get_stats(self) -> dict: return self.repo.get_stats()
 
-    def create_order(self, data: OrderCreate, image=None) -> Order:
+    def create_order(self, data: OrderCreate, item_images=None) -> Order:
         number = self._generate_number()
-        customer = Customer(name=data.customer_name, phone=data.customer_phone, notes=data.notes)
-        order = Order(number=number, notes=data.notes, delivery_date=data.delivery_date, status=OrderStatus.PENDING, customer=customer)
+        # إضافة العنوان للعميل
+        customer = Customer(name=data.customer_name, phone=data.customer_phone, address=data.customer_address, notes=data.notes)
+        order = Order(
+            number=number, notes=data.notes, status=OrderStatus.PENDING, customer=customer,
+            shipping_company=data.shipping_company, receipt_date=data.receipt_date, delivery_date=data.delivery_date
+        )
         
-        total_order_area = 0
         total_order_price = 0
-        
-        # حلقة تكرارية ثلاثية الأبعاد (الطول، العرض، وسعر القطعة)
-        for l, w, p in zip(data.lengths, data.widths, data.prices_per_m2):
+        # معالجة كل سجادة على حدة مع صورتها
+        for i in range(len(data.lengths)):
+            l = data.lengths[i]
+            w = data.widths[i]
+            p = data.prices_per_m2[i]
+            img = item_images[i] if item_images and i < len(item_images) else None
+            
             area = round(l * w, 2)
             item_total = round(area * p, 2)
-            total_order_area += area
             total_order_price += item_total
             
-            item = OrderItem(length=l, width=w, area=area, price_per_m2=p, total=item_total, description="طباعة")
+            # حفظ صورة السجادة إذا وجدت
+            img_path = self._save_image(img) if img and img.filename else None
+            item = OrderItem(length=l, width=w, area=area, price_per_m2=p, total=item_total, image_path=img_path, description="طباعة")
             order.items.append(item)
 
         order.total_price = total_order_price
@@ -35,7 +43,6 @@ class OrderService:
             if data.payment_ref: db_notes += f" | رقم العملية: {data.payment_ref}"
             order.payments.append(Payment(amount=data.paid_amount, payment_method=db_method, notes=db_notes))
 
-        if image and image.filename: order.images.append(OrderImage(image_path=self._save_image(image)))
         return self.repo.create(order)
 
     def update_status(self, order_id: str, data: OrderUpdateStatus) -> Order:
@@ -47,9 +54,9 @@ class OrderService:
     def delete_order(self, order_id: str) -> bool:
         order = self.repo.get_by_id(order_id)
         if not order: raise ValueError("Order not found")
-        if order.images:
-            for img in order.images:
-                if os.path.exists(img.image_path): os.remove(img.image_path)
+        if order.items:
+            for item in order.items:
+                if item.image_path and os.path.exists(item.image_path): os.remove(item.image_path)
         return self.repo.delete(order)
 
     def _generate_number(self) -> str: return f"ORD-{self.repo.count() + 1:03d}"
