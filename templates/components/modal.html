@@ -21,9 +21,9 @@
                 
                 <div id="rugs-container">
                     <div class="rug-row" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:var(--space-2);align-items:start;margin-bottom:8px;">
-                        <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول" required class="form-input smart-calc"></div>
-                        <div><input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض" required class="form-input smart-calc"></div>
-                        <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر" required class="form-input smart-calc"></div>
+                        <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول(م)" required class="form-input smart-calc"></div>
+                        <div><input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض(م)" required class="form-input smart-calc"></div>
+                        <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر/م²" required class="form-input smart-calc"></div>
                         <button type="button" onclick="removeRugRow(this)" style="background:none; border:none; color:var(--text-muted); padding:10px; cursor:not-allowed;" disabled>✕</button>
                     </div>
                 </div>
@@ -67,18 +67,16 @@
 </div>
 
 <script>
-    // 👇 المراقب الذكي (MutationObserver) لمنع نزيف التمرير
     const modalObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.target.classList.contains('hidden')) {
-                document.body.style.overflow = ''; // إعادة التمرير للصفحة
+                document.body.style.overflow = ''; 
             } else {
-                document.body.style.overflow = 'hidden'; // قفل تمرير الصفحة
+                document.body.style.overflow = 'hidden'; 
             }
         });
     });
     modalObserver.observe(document.getElementById('main-modal'), { attributes: true, attributeFilter: ['class'] });
-    // 👆 نهاية المراقب الذكي
 
     function addRugRow() {
         const container = document.getElementById('rugs-container');
@@ -88,7 +86,7 @@
         row.innerHTML = `
             <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول(م)" required class="form-input smart-calc"></div>
             <div><input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض(م)" required class="form-input smart-calc"></div>
-            <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر" required class="form-input smart-calc"></div>
+            <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر/م²" required class="form-input smart-calc"></div>
             <button type="button" onclick="removeRugRow(this)" style="background:none; border:none; color:#ef4444; padding:10px; cursor:pointer; font-weight:bold;">✕</button>
         `;
         container.appendChild(row);
@@ -156,10 +154,12 @@
     });
 
     document.body.addEventListener('htmx:afterRequest', function(evt) {
-        if (evt.detail.target.id === 'orders-table-body' && evt.detail.successful) {
-            if (typeof closeModal === 'function') { closeModal(); } else { document.getElementById('main-modal').classList.add('hidden'); }
-            document.getElementById('order-form').reset();
+        // 👇 هذا هو السطر الذي أصلحناه ليطابق الـ Form بدلاً من الجدول 👇
+        if (evt.target.id === 'order-form' && evt.detail.successful) {
             
+            if (typeof closeModal === 'function') { closeModal(); } else { document.getElementById('main-modal').classList.add('hidden'); }
+            
+            document.getElementById('order-form').reset();
             const container = document.getElementById('rugs-container');
             while (container.children.length > 1) { container.removeChild(container.lastChild); }
             updateRemoveButtons();
