@@ -6,11 +6,10 @@ class OrderCreate(BaseModel):
     customer_name:  str   = Field(..., min_length=2, max_length=100)
     customer_phone: str   = Field("", max_length=20)
     
-    # تحويل الطول والعرض إلى قوائم (Arrays) لاستقبال أكثر من سجادة
     lengths:        List[float] = Field(...)
     widths:         List[float] = Field(...)
+    prices_per_m2:  List[float] = Field(...) # المصفوفة الجديدة للأسعار المتعددة
     
-    price_per_m2:   float = Field(0, ge=0)
     paid_amount:    float = Field(0, ge=0)
     payment_method: str   = Field("كاش")
     payment_ref:    str   = Field("")
@@ -25,12 +24,11 @@ class OrderCreate(BaseModel):
 
     @model_validator(mode='after')
     def validate_financials(self):
-        if len(self.lengths) != len(self.widths):
-            raise ValueError("يوجد خطأ في تطابق الأطوال مع العروض")
+        if not (len(self.lengths) == len(self.widths) == len(self.prices_per_m2)):
+            raise ValueError("يوجد خطأ في تطابق المقاسات مع الأسعار")
             
-        # حساب إجمالي المساحات لكل السجاد
-        total_area = sum(l * w for l, w in zip(self.lengths, self.widths))
-        total_price = round(total_area * self.price_per_m2, 2)
+        # حساب ذكي: جمع (الطول × العرض × السعر) لكل سجادة
+        total_price = round(sum((l * w) * p for l, w, p in zip(self.lengths, self.widths, self.prices_per_m2)), 2)
         
         if self.paid_amount > total_price and total_price > 0:
             raise ValueError(f"المبلغ المدفوع ({self.paid_amount}) يتجاوز الإجمالي ({total_price})")

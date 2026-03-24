@@ -12,17 +12,16 @@ from typing import Optional, List
 router = APIRouter(prefix="/orders", tags=["orders"])
 templates = Jinja2Templates(directory="templates")
 
-def get_service(db: Session = Depends(get_db)) -> OrderService:
-    return OrderService(OrderRepository(db))
+def get_service(db: Session = Depends(get_db)) -> OrderService: return OrderService(OrderRepository(db))
 
 @router.post("/add", response_class=HTMLResponse)
 async def add_order(
     request:        Request,
     customer_name:  str            = Form(...),
     customer_phone: str            = Form(""),
-    lengths:        List[float]    = Form(...),  # استقبال كقائمة
-    widths:         List[float]    = Form(...),  # استقبال كقائمة
-    price_per_m2:   float          = Form(0),
+    lengths:        List[float]    = Form(...),
+    widths:         List[float]    = Form(...),
+    prices_per_m2:  List[float]    = Form(...), # استقبال قائمة الأسعار
     paid_amount:    float          = Form(0),
     payment_method: str            = Form("كاش"),
     payment_ref:    str            = Form(""),
@@ -33,21 +32,17 @@ async def add_order(
 ):
     data = OrderCreate(
         customer_name=customer_name, customer_phone=customer_phone,
-        lengths=lengths, widths=widths,
-        price_per_m2=price_per_m2, paid_amount=paid_amount,
-        payment_method=payment_method, payment_ref=payment_ref,
-        notes=notes,
-        delivery_date=date.fromisoformat(delivery_date) if delivery_date else None,
+        lengths=lengths, widths=widths, prices_per_m2=prices_per_m2,
+        paid_amount=paid_amount, payment_method=payment_method, payment_ref=payment_ref,
+        notes=notes, delivery_date=date.fromisoformat(delivery_date) if delivery_date else None,
     )
     order = service.create_order(data, image)
     return templates.TemplateResponse("partials/order_row.html", {"request": request, "order": order})
 
 @router.post("/{order_id}/status", response_class=HTMLResponse)
 async def update_status(request: Request, order_id: str, new_status: str = Form(...), service: OrderService = Depends(get_service)):
-    order = service.update_status(order_id, OrderUpdateStatus(new_status=new_status))
-    return templates.TemplateResponse("partials/order_row.html", {"request": request, "order": order})
+    return templates.TemplateResponse("partials/order_row.html", {"request": request, "order": service.update_status(order_id, OrderUpdateStatus(new_status=new_status))})
 
 @router.delete("/{order_id}", response_class=HTMLResponse)
 async def delete_order(order_id: str, service: OrderService = Depends(get_service)):
-    service.delete_order(order_id)
-    return HTMLResponse("")
+    service.delete_order(order_id); return HTMLResponse("")

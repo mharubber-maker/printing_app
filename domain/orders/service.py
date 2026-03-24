@@ -17,14 +17,14 @@ class OrderService:
         total_order_area = 0
         total_order_price = 0
         
-        # حلقة تكرارية لربط كل طول مع عرضه المعاكس وإنشاء عنصر (سجادة)
-        for l, w in zip(data.lengths, data.widths):
+        # حلقة تكرارية ثلاثية الأبعاد (الطول، العرض، وسعر القطعة)
+        for l, w, p in zip(data.lengths, data.widths, data.prices_per_m2):
             area = round(l * w, 2)
-            item_total = round(area * data.price_per_m2, 2)
+            item_total = round(area * p, 2)
             total_order_area += area
             total_order_price += item_total
             
-            item = OrderItem(length=l, width=w, area=area, price_per_m2=data.price_per_m2, total=item_total, description="طباعة")
+            item = OrderItem(length=l, width=w, area=area, price_per_m2=p, total=item_total, description="طباعة")
             order.items.append(item)
 
         order.total_price = total_order_price
@@ -35,9 +35,7 @@ class OrderService:
             if data.payment_ref: db_notes += f" | رقم العملية: {data.payment_ref}"
             order.payments.append(Payment(amount=data.paid_amount, payment_method=db_method, notes=db_notes))
 
-        if image and image.filename:
-            order.images.append(OrderImage(image_path=self._save_image(image)))
-            
+        if image and image.filename: order.images.append(OrderImage(image_path=self._save_image(image)))
         return self.repo.create(order)
 
     def update_status(self, order_id: str, data: OrderUpdateStatus) -> Order:
