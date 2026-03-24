@@ -1,8 +1,9 @@
-<div id="main-modal" class="modal-overlay hidden">
-    <div class="modal-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-5)">
+<div id="main-modal" class="modal-overlay hidden" style="backdrop-filter: blur(4px);">
+    <div class="modal-card" style="max-width: 550px; max-height: 85vh; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; padding-right: 5px;">
+        
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-5); position: sticky; top: 0; background: var(--bg-card); z-index: 10; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
             <h2 style="font-size:var(--text-lg);font-weight:var(--font-black);color:var(--text-primary)">➕ طلب جديد</h2>
-            <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--text-muted);line-height:1">✕</button>
+            <button onclick="closeModal()" style="background:var(--bg-body);border:1px solid var(--border-color);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:0.2s">✕</button>
         </div>
 
         <form id="order-form" hx-post="/orders/add" hx-target="#orders-table-body" hx-swap="afterbegin" hx-encoding="multipart/form-data" style="display:flex;flex-direction:column;gap:var(--space-4)">
@@ -14,21 +15,15 @@
 
             <div style="background:var(--bg-card); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <label class="form-label" style="margin:0;">تفاصيل السجاد</label>
+                    <label class="form-label" style="margin:0;">تفاصيل المقاسات</label>
                     <button type="button" onclick="addRugRow()" style="background:var(--gold-subtle); color:var(--gold-dark); border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">+ إضافة مقاس</button>
                 </div>
                 
                 <div id="rugs-container">
                     <div class="rug-row" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:var(--space-2);align-items:start;margin-bottom:8px;">
-                        <div>
-                            <input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول(م)" required class="form-input smart-calc">
-                        </div>
-                        <div>
-                            <input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض(م)" required class="form-input smart-calc">
-                        </div>
-                        <div>
-                            <input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر/م²" required class="form-input smart-calc">
-                        </div>
+                        <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول" required class="form-input smart-calc"></div>
+                        <div><input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض" required class="form-input smart-calc"></div>
+                        <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر" required class="form-input smart-calc"></div>
                         <button type="button" onclick="removeRugRow(this)" style="background:none; border:none; color:var(--text-muted); padding:10px; cursor:not-allowed;" disabled>✕</button>
                     </div>
                 </div>
@@ -55,7 +50,7 @@
                 </div>
             </div>
 
-            <div style="background:var(--bg-body); border:1px solid rgba(245,166,35,0.4); border-radius:var(--radius-md); padding:var(--space-3); text-align:center; display: flex; justify-content: space-between;">
+            <div style="background:var(--bg-body); border:1px solid rgba(245,166,35,0.4); border-radius:var(--radius-md); padding:var(--space-3); text-align:center; display: flex; justify-content: space-between; position: sticky; bottom: 0; z-index: 10;">
                 <div><p style="font-size:var(--text-xs);color:var(--text-muted)">المساحة الإجمالية</p><p id="res-area" style="font-weight:bold;color:var(--text-primary)">0 م²</p></div>
                 <div><p style="font-size:var(--text-xs);color:var(--text-muted)">الإجمالي العام</p><p id="res-total" style="font-weight:bold;color:var(--text-primary)">0 ج</p></div>
                 <div><p style="font-size:var(--text-xs);color:var(--text-muted)">حالة الدفع</p><p id="res-status" style="font-weight:bold;color:red">لم يدفع 🔴</p></div>
@@ -66,12 +61,25 @@
                 <div><label class="form-label">صورة الطلب</label><input name="image" type="file" accept="image/*" class="form-input" style="padding:6px 12px"></div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:var(--text-base)">💾 حفظ الطلب وإصدار الفاتورة</button>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:var(--text-base); margin-top: 10px;">💾 حفظ الطلب وإصدار الفاتورة</button>
         </form>
     </div>
 </div>
 
 <script>
+    // 👇 المراقب الذكي (MutationObserver) لمنع نزيف التمرير
+    const modalObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.target.classList.contains('hidden')) {
+                document.body.style.overflow = ''; // إعادة التمرير للصفحة
+            } else {
+                document.body.style.overflow = 'hidden'; // قفل تمرير الصفحة
+            }
+        });
+    });
+    modalObserver.observe(document.getElementById('main-modal'), { attributes: true, attributeFilter: ['class'] });
+    // 👆 نهاية المراقب الذكي
+
     function addRugRow() {
         const container = document.getElementById('rugs-container');
         const row = document.createElement('div');
@@ -80,7 +88,7 @@
         row.innerHTML = `
             <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول(م)" required class="form-input smart-calc"></div>
             <div><input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض(م)" required class="form-input smart-calc"></div>
-            <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر/م²" required class="form-input smart-calc"></div>
+            <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر" required class="form-input smart-calc"></div>
             <button type="button" onclick="removeRugRow(this)" style="background:none; border:none; color:#ef4444; padding:10px; cursor:pointer; font-weight:bold;">✕</button>
         `;
         container.appendChild(row);
@@ -124,17 +132,13 @@
             const paidInput = document.getElementById('calc-paid');
             let paid = parseFloat(paidInput?.value) || 0;
 
-            let total_area = 0;
-            let total_price = 0;
-            
+            let total_area = 0; let total_price = 0;
             for(let i=0; i<lengths.length; i++){
                 const l = parseFloat(lengths[i].value) || 0;
                 const w = parseFloat(widths[i].value) || 0;
                 const p = parseFloat(prices[i].value) || 0;
-                
                 const area = l * w;
-                total_area += area;
-                total_price += (area * p); // ضرب مساحة كل سجادة في سعرها المستقل
+                total_area += area; total_price += (area * p);
             }
 
             if (paid > total_price && total_price > 0) { paidInput.value = total_price; paid = total_price; }
@@ -144,15 +148,10 @@
             document.getElementById('res-total').innerText = total_price.toFixed(2) + ' ج';
 
             const statusEl = document.getElementById('res-status');
-            if (total_price === 0) {
-                statusEl.innerText = 'بانتظار السعر ⏳'; statusEl.style.color = 'var(--text-muted)';
-            } else if (remaining <= 0) {
-                statusEl.innerText = 'خالص ✅'; statusEl.style.color = '#10b981';
-            } else if (paid > 0) {
-                statusEl.innerText = `متبقي: ${remaining.toFixed(1)} ج 🟡`; statusEl.style.color = '#f5a623';
-            } else {
-                statusEl.innerText = `آجل (لم يدفع) 🔴`; statusEl.style.color = '#ef4444';
-            }
+            if (total_price === 0) { statusEl.innerText = 'بانتظار السعر ⏳'; statusEl.style.color = 'var(--text-muted)'; }
+            else if (remaining <= 0) { statusEl.innerText = 'خالص ✅'; statusEl.style.color = '#10b981'; }
+            else if (paid > 0) { statusEl.innerText = `متبقي: ${remaining.toFixed(1)} ج 🟡`; statusEl.style.color = '#f5a623'; }
+            else { statusEl.innerText = `آجل (لم يدفع) 🔴`; statusEl.style.color = '#ef4444'; }
         }
     });
 
