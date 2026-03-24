@@ -1,90 +1,114 @@
 <div id="main-modal" class="modal-overlay hidden">
     <div class="modal-card">
-
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-5)">
-            <h2 style="font-size:var(--text-lg);font-weight:var(--font-black);color:var(--text-primary)">
-                ➕ طلب جديد
-            </h2>
-            <button onclick="closeModal()"
-                    style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--text-muted);line-height:1">
-                ✕
-            </button>
+            <h2 style="font-size:var(--text-lg);font-weight:var(--font-black);color:var(--text-primary)">➕ طلب جديد</h2>
+            <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--text-muted);line-height:1">✕</button>
         </div>
 
-        <form id="order-form"
-              hx-post="/orders/add"
-              hx-target="#orders-table-body"
-              hx-swap="afterbegin"
-              hx-encoding="multipart/form-data"
-              style="display:flex;flex-direction:column;gap:var(--space-4)">
-
+        <form id="order-form" hx-post="/orders/add" hx-target="#orders-table-body" hx-swap="afterbegin" hx-encoding="multipart/form-data" style="display:flex;flex-direction:column;gap:var(--space-4)">
+            
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
-                <div>
-                    <label class="form-label">اسم العميل *</label>
-                    <input name="customer_name" type="text" required
-                           placeholder="أحمد محمد" class="form-input">
-                </div>
-                <div>
-                    <label class="form-label">رقم التليفون</label>
-                    <input name="customer_phone" type="tel"
-                           placeholder="01012345678" class="form-input">
-                </div>
+                <div><label class="form-label">اسم العميل *</label><input name="customer_name" type="text" required class="form-input"></div>
+                <div><label class="form-label">رقم التليفون</label><input name="customer_phone" type="tel" class="form-input"></div>
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
-                <div>
-                    <label class="form-label">الطول (م) *</label>
-                    <input id="length-input" name="length" type="number"
-                           step="0.1" min="0.1" placeholder="3" required class="form-input">
-                </div>
-                <div>
-                    <label class="form-label">العرض (م) *</label>
-                    <input id="width-input" name="width" type="number"
-                           step="0.1" min="0.1" placeholder="4" required class="form-input">
-                </div>
-            </div>
-
-            <div style="background:var(--gold-subtle);border:1px solid rgba(245,166,35,0.2);
-                        border-radius:var(--radius-md);padding:var(--space-4);text-align:center">
-                <p style="font-size:var(--text-xs);color:var(--text-muted)">المساحة المحسوبة</p>
-                <p id="area-result"
-                   style="font-size:28px;font-weight:var(--font-black);color:var(--gold-dark)">
-                    -- م²
-                </p>
+                <div><label class="form-label">الطول (م) *</label><input id="calc-length" name="length" type="number" step="0.1" min="0.1" required class="form-input smart-calc"></div>
+                <div><label class="form-label">العرض (م) *</label><input id="calc-width" name="width" type="number" step="0.1" min="0.1" required class="form-input smart-calc"></div>
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
+                <div><label class="form-label">سعر المتر (ج)</label><input id="calc-price" name="price_per_m2" type="number" step="0.5" min="0" value="0" class="form-input smart-calc"></div>
+                <div><label class="form-label">المدفوع مقدماً (ج)</label><input id="calc-paid" name="paid_amount" type="number" step="1" min="0" value="0" class="form-input smart-calc"></div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3); background: var(--bg-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
                 <div>
-                    <label class="form-label">سعر المتر (ج)</label>
-                    <input name="price_per_m2" type="number" step="0.5" min="0" value="0" class="form-input">
+                    <label class="form-label">طريقة الدفع 💳</label>
+                    <select id="payment-method-select" name="payment_method" class="form-input">
+                        <option value="كاش">كاش 💵</option>
+                        <option value="فودافون كاش">فودافون كاش 🔴</option>
+                        <option value="انستا باي">انستا باي 🟣</option>
+                        <option value="تحويل بنكي">تحويل بنكي 🏦</option>
+                    </select>
                 </div>
-                <div>
-                    <label class="form-label">المدفوع مقدماً (ج)</label>
-                    <input name="paid_amount" type="number" step="1" min="0" value="0" class="form-input">
+                <div id="payment-ref-container" style="display: none;">
+                    <label class="form-label" id="ref-label">رقم العملية / الموبايل *</label>
+                    <input id="payment-ref-input" name="payment_ref" type="text" placeholder="مطلوب للتحويلات" class="form-input">
                 </div>
             </div>
+
+            <div style="background:var(--bg-body); border:1px solid rgba(245,166,35,0.4); border-radius:var(--radius-md); padding:var(--space-3); text-align:center; display: flex; justify-content: space-between;">
+                <div><p style="font-size:var(--text-xs);color:var(--text-muted)">المساحة</p><p id="res-area" style="font-weight:bold;color:var(--text-primary)">0 م²</p></div>
+                <div><p style="font-size:var(--text-xs);color:var(--text-muted)">الإجمالي</p><p id="res-total" style="font-weight:bold;color:var(--text-primary)">0 ج</p></div>
+                <div><p style="font-size:var(--text-xs);color:var(--text-muted)">حالة الدفع</p><p id="res-status" style="font-weight:bold;color:red">لم يدفع 🔴</p></div>
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
-                <div>
-                    <label class="form-label">تاريخ التسليم</label>
-                    <input name="delivery_date" type="date" class="form-input">
-                </div>
-                <div>
-                    <label class="form-label">صورة الطلب</label>
-                    <input name="image" type="file" accept="image/*"
-                           class="form-input" style="padding:6px 12px">
-                </div>
+                <div><label class="form-label">تاريخ التسليم</label><input name="delivery_date" type="date" class="form-input"></div>
+                <div><label class="form-label">صورة الطلب</label><input name="image" type="file" accept="image/*" class="form-input" style="padding:6px 12px"></div>
             </div>
 
-            <div>
-                <label class="form-label">ملاحظات</label>
-                <textarea name="notes" rows="2" placeholder="أى تفاصيل..."
-                          class="form-input" style="resize:none"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary"
-                    style="width:100%;justify-content:center;padding:12px;font-size:var(--text-base)">
-                💾 حفظ الطلب
-            </button>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:var(--text-base)">💾 حفظ الطلب وإصدار الفاتورة</button>
         </form>
     </div>
 </div>
+
+<script>
+    // استخدام Event Delegation لضمان عمل السكربت مع HTMX 
+    // هذا الأسلوب لا يموت عند إعادة بناء الـ DOM
+    document.body.addEventListener('input', function(e) {
+        
+        // 1. معالجة إظهار/إخفاء وإلزامية حقل التحويل
+        if (e.target.id === 'payment-method-select') {
+            const refContainer = document.getElementById('payment-ref-container');
+            const refInput = document.getElementById('payment-ref-input');
+            if(e.target.value !== 'كاش') {
+                refContainer.style.display = 'block';
+                refInput.setAttribute('required', 'true');
+            } else {
+                refContainer.style.display = 'none';
+                refInput.removeAttribute('required');
+                refInput.value = ''; // تفريغ الحقل لمنع التلوث
+            }
+        }
+
+        // 2. الآلة الحاسبة الذكية المربوطة بـ class
+        if (e.target.classList.contains('smart-calc')) {
+            const l = parseFloat(document.getElementById('calc-length')?.value) || 0;
+            const w = parseFloat(document.getElementById('calc-width')?.value) || 0;
+            const p = parseFloat(document.getElementById('calc-price')?.value) || 0;
+            const paidInput = document.getElementById('calc-paid');
+            let paid = parseFloat(paidInput?.value) || 0;
+
+            const area = l * w;
+            const total = area * p;
+            
+            // حماية فورية للـ UI: منع كتابة مبلغ أكبر من الإجمالي
+            if (paid > total && total > 0) {
+                paidInput.value = total;
+                paid = total;
+            }
+
+            const remaining = total - paid;
+
+            document.getElementById('res-area').innerText = area.toFixed(2) + ' م²';
+            document.getElementById('res-total').innerText = total.toFixed(2) + ' ج';
+
+            const statusEl = document.getElementById('res-status');
+            if (total === 0) {
+                statusEl.innerText = 'بانتظار السعر ⏳';
+                statusEl.style.color = 'var(--text-muted)';
+            } else if (remaining <= 0) {
+                statusEl.innerText = 'خالص ✅';
+                statusEl.style.color = '#10b981';
+            } else if (paid > 0) {
+                statusEl.innerText = `متبقي: ${remaining.toFixed(1)} ج 🟡`;
+                statusEl.style.color = '#f5a623';
+            } else {
+                statusEl.innerText = `آجل (لم يدفع) 🔴`;
+                statusEl.style.color = '#ef4444';
+            }
+        }
+    });
+</script>
