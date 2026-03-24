@@ -19,7 +19,8 @@ async def add_order(
     request: Request,
     customer_name: str = Form(...), customer_phone: str = Form(""), customer_address: str = Form(""),
     lengths: List[float] = Form(...), widths: List[float] = Form(...), prices_per_m2: List[float] = Form(...),
-    item_images: List[UploadFile] = File(default=[]), # استقبال صور السجاد
+    item_images: List[UploadFile] = File(default=[]),
+    transfer_receipt: UploadFile = File(None), # 👇 استقبال صورة التحويل
     paid_amount: float = Form(0), payment_method: str = Form("كاش"), payment_ref: str = Form(""),
     shipping_company: str = Form(""), receipt_date: Optional[str] = Form(None), delivery_date: Optional[str] = Form(None),
     notes: str = Form(""), service: OrderService = Depends(get_service),
@@ -31,7 +32,7 @@ async def add_order(
         shipping_company=shipping_company, receipt_date=date.fromisoformat(receipt_date) if receipt_date else None,
         delivery_date=date.fromisoformat(delivery_date) if delivery_date else None, notes=notes
     )
-    order = service.create_order(data, item_images)
+    order = service.create_order(data, item_images, transfer_receipt)
     return templates.TemplateResponse("partials/order_row.html", {"request": request, "order": order})
 
 @router.post("/{order_id}/status", response_class=HTMLResponse)

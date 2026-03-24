@@ -9,9 +9,8 @@ class OrderService:
     def get_all(self, search: str = "", status: str = "") -> list[Order]: return self.repo.get_all(search=search, status=status)
     def get_stats(self) -> dict: return self.repo.get_stats()
 
-    def create_order(self, data: OrderCreate, item_images=None) -> Order:
+    def create_order(self, data: OrderCreate, item_images=None, transfer_receipt=None) -> Order:
         number = self._generate_number()
-        # إضافة العنوان للعميل
         customer = Customer(name=data.customer_name, phone=data.customer_phone, address=data.customer_address, notes=data.notes)
         order = Order(
             number=number, notes=data.notes, status=OrderStatus.PENDING, customer=customer,
@@ -19,29 +18,26 @@ class OrderService:
         )
         
         total_order_price = 0
-        # معالجة كل سجادة على حدة مع صورتها
         for i in range(len(data.lengths)):
-            l = data.lengths[i]
-            w = data.widths[i]
-            p = data.prices_per_m2[i]
+            l = data.lengths[i]; w = data.widths[i]; p = data.prices_per_m2[i]
             img = item_images[i] if item_images and i < len(item_images) else None
-            
-            area = round(l * w, 2)
-            item_total = round(area * p, 2)
+            area = round(l * w, 2); item_total = round(area * p, 2)
             total_order_price += item_total
             
-            # حفظ صورة السجادة إذا وجدت
             img_path = self._save_image(img) if img and img.filename else None
-            item = OrderItem(length=l, width=w, area=area, price_per_m2=p, total=item_total, image_path=img_path, description="طباعة")
-            order.items.append(item)
+            order.items.append(OrderItem(length=l, width=w, area=area, price_per_m2=p, total=item_total, image_path=img_path, description="طباعة"))
 
         order.total_price = total_order_price
 
         if data.paid_amount > 0:
             db_method = "تحويل" if data.payment_method in ["فودافون كاش", "انستا باي", "تحويل بنكي"] else "كاش"
-            db_notes = f"تم الدفع عبر: {data.payment_method}"
-            if data.payment_ref: db_notes += f" | رقم العملية: {data.payment_ref}"
+            db_notes = f"تم الدفع عبر: {data.payment_method} | رقم العملية: {data.payment_ref}" if data.payment_ref else f"تم الدفع عبر: {data.payment_method}"
             order.payments.append(Payment(amount=data.paid_amount, payment_method=db_method, notes=db_notes))
+            
+            # 👇 حفظ صورة إيصال التحويل إذا تم رفعها
+            if transfer_receipt and transfer_receipt.filename:
+                receipt_path = self._save_image(transfer_receipt)
+                order.images.append(OrderImage(image_path=receipt_path, caption="إيصال دفع"))
 
         return self.repo.create(order)
 
@@ -57,6 +53,9 @@ class OrderService:
         if order.items:
             for item in order.items:
                 if item.image_path and os.path.exists(item.image_path): os.remove(item.image_path)
+        if order.images:
+            for img in order.images:
+                if img.image_path and os.path.exists(img.image_path): os.remove(img.image_path)
         return self.repo.delete(order)
 
     def _generate_number(self) -> str: return f"ORD-{self.repo.count() + 1:03d}"

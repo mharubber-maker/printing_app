@@ -1,6 +1,5 @@
 <div id="main-modal" class="modal-overlay hidden" style="backdrop-filter: blur(4px);">
     <div class="modal-card" style="max-width: 600px; max-height: 85vh; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; padding-right: 5px;">
-        
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-5); position: sticky; top: 0; background: var(--bg-card); z-index: 10; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
             <h2 style="font-size:var(--text-lg);font-weight:var(--font-black);color:var(--text-primary)">➕ طلب جديد</h2>
             <button onclick="closeModal()" style="background:var(--bg-body);border:1px solid var(--border-color);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:0.2s">✕</button>
@@ -31,7 +30,6 @@
                     <label class="form-label" style="margin:0;">🧶 السجاد والصور</label>
                     <button type="button" onclick="addRugRow()" style="background:var(--gold-subtle); color:var(--gold-dark); border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">+ إضافة مقاس</button>
                 </div>
-                
                 <div id="rugs-container">
                     <div class="rug-row" style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:var(--space-2);align-items:center;margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed var(--border-color);">
                         <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول" required class="form-input smart-calc"></div>
@@ -62,7 +60,11 @@
                     </select>
                 </div>
                 <div id="payment-ref-container" style="display: none; grid-column: span 2;">
-                    <input id="payment-ref-input" name="payment_ref" type="text" placeholder="رقم العملية / الموبايل *" class="form-input">
+                    <input id="payment-ref-input" name="payment_ref" type="text" placeholder="رقم العملية / الموبايل *" class="form-input" style="margin-bottom:8px;">
+                    <label style="cursor:pointer; background:rgba(245,166,35,0.1); color:var(--gold-dark); padding:8px; border-radius:6px; border:1px dashed var(--gold-dark); display:block; text-align:center; font-size:12px; font-weight:bold;" title="إرفاق صورة التحويل">
+                        📸 إرفاق سكرين شوت التحويل
+                        <input type="file" name="transfer_receipt" accept="image/*" style="display:none;" onchange="this.parentElement.style.background='var(--gold-dark)'; this.parentElement.style.color='#fff';">
+                    </label>
                 </div>
             </div>
 
@@ -81,9 +83,7 @@
 
 <script>
     const modalObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            document.body.style.overflow = mutation.target.classList.contains('hidden') ? '' : 'hidden';
-        });
+        mutations.forEach((mutation) => { document.body.style.overflow = mutation.target.classList.contains('hidden') ? '' : 'hidden'; });
     });
     modalObserver.observe(document.getElementById('main-modal'), { attributes: true, attributeFilter: ['class'] });
 
@@ -96,34 +96,22 @@
             <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول" required class="form-input smart-calc"></div>
             <div><input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض" required class="form-input smart-calc"></div>
             <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="السعر" required class="form-input smart-calc"></div>
-            <div>
-                <label style="cursor:pointer; background:var(--bg-body); padding:8px; border-radius:6px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center;" title="إرفاق صورة السجادة">
-                    📷 <input type="file" name="item_images" accept="image/*" style="display:none;" onchange="this.parentElement.style.borderColor='var(--gold-dark)'">
-                </label>
-            </div>
+            <div><label style="cursor:pointer; background:var(--bg-body); padding:8px; border-radius:6px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center;">📷 <input type="file" name="item_images" accept="image/*" style="display:none;" onchange="this.parentElement.style.borderColor='var(--gold-dark)'"></label></div>
             <button type="button" onclick="removeRugRow(this)" style="background:none; border:none; color:#ef4444; padding:5px; cursor:pointer; font-weight:bold;">✕</button>
         `;
-        container.appendChild(row);
-        updateRemoveButtons();
+        container.appendChild(row); updateRemoveButtons();
     }
 
     function removeRugRow(btn) {
         const container = document.getElementById('rugs-container');
-        if (container.children.length > 1) {
-            btn.parentElement.remove();
-            updateRemoveButtons();
-            document.body.dispatchEvent(new Event('input', {bubbles: true})); 
-        }
+        if (container.children.length > 1) { btn.parentElement.remove(); updateRemoveButtons(); document.body.dispatchEvent(new Event('input', {bubbles: true})); }
     }
 
     function updateRemoveButtons() {
         const rows = document.querySelectorAll('.rug-row');
         const firstBtn = rows[0].querySelector('button');
-        if (rows.length === 1) {
-            firstBtn.style.color = 'var(--text-muted)'; firstBtn.style.cursor = 'not-allowed'; firstBtn.disabled = true;
-        } else {
-            firstBtn.style.color = '#ef4444'; firstBtn.style.cursor = 'pointer'; firstBtn.disabled = false;
-        }
+        if (rows.length === 1) { firstBtn.style.color = 'var(--text-muted)'; firstBtn.style.cursor = 'not-allowed'; firstBtn.disabled = true;
+        } else { firstBtn.style.color = '#ef4444'; firstBtn.style.cursor = 'pointer'; firstBtn.disabled = false; }
     }
 
     document.body.addEventListener('input', function(e) {
@@ -146,11 +134,8 @@
 
             let total_area = 0; let total_price = 0;
             for(let i=0; i<lengths.length; i++){
-                const l = parseFloat(lengths[i].value) || 0;
-                const w = parseFloat(widths[i].value) || 0;
-                const p = parseFloat(prices[i].value) || 0;
-                const area = l * w;
-                total_area += area; total_price += (area * p);
+                const l = parseFloat(lengths[i].value) || 0; const w = parseFloat(widths[i].value) || 0; const p = parseFloat(prices[i].value) || 0;
+                const area = l * w; total_area += area; total_price += (area * p);
             }
 
             if (paid > total_price && total_price > 0) { paidInput.value = total_price; paid = total_price; }
@@ -174,15 +159,10 @@
             const container = document.getElementById('rugs-container');
             while (container.children.length > 1) { container.removeChild(container.lastChild); }
             updateRemoveButtons();
-
-            document.getElementById('res-area').innerText = '0 م²';
-            document.getElementById('res-total').innerText = '0 ج';
-            document.getElementById('res-status').innerText = 'لم يدفع 🔴';
-            document.getElementById('res-status').style.color = '#ef4444';
+            document.getElementById('res-area').innerText = '0 م²'; document.getElementById('res-total').innerText = '0 ج';
+            document.getElementById('res-status').innerText = 'لم يدفع 🔴'; document.getElementById('res-status').style.color = '#ef4444';
             document.getElementById('payment-ref-container').style.display = 'none';
-            // إرجاع ألوان أزرار الصور للون الافتراضي
             document.querySelectorAll('input[type="file"]').forEach(input => input.parentElement.style.borderColor = 'var(--border-color)');
-
             const emptyMsg = document.querySelector('#orders-table-body td[colspan="6"]');
             if (emptyMsg) emptyMsg.parentElement.style.display = 'none';
         }
