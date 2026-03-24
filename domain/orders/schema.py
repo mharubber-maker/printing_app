@@ -1,12 +1,14 @@
 from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 
 class OrderCreate(BaseModel):
     customer_name:  str   = Field(..., min_length=2, max_length=100)
     customer_phone: str   = Field("", max_length=20)
-    length:         float = Field(..., gt=0, le=100)
-    width:          float = Field(..., gt=0, le=100)
+    
+    # تحويل الطول والعرض إلى قوائم (Arrays) لاستقبال أكثر من سجادة
+    lengths:        List[float] = Field(...)
+    widths:         List[float] = Field(...)
     
     price_per_m2:   float = Field(0, ge=0)
     paid_amount:    float = Field(0, ge=0)
@@ -21,22 +23,21 @@ class OrderCreate(BaseModel):
         if not v.strip(): raise ValueError("اسم العميل مطلوب")
         return v.strip()
 
-    @field_validator("customer_phone")
-    def phone_format(cls, v):
-        if v and not v.replace(" ", "").isdigit(): raise ValueError("رقم التليفون غير صالح")
-        return v.strip()
-
     @model_validator(mode='after')
     def validate_financials(self):
-        # 1. منع الدفع الوهمي (المدفوع أكبر من الإجمالي)
-        total = round((self.length * self.width) * self.price_per_m2, 2)
-        if self.paid_amount > total and total > 0:
-            raise ValueError(f"اختراق أمني: المبلغ المدفوع ({self.paid_amount}) يتجاوز الإجمالي ({total})")
+        if len(self.lengths) != len(self.widths):
+            raise ValueError("يوجد خطأ في تطابق الأطوال مع العروض")
             
-        # 2. الإلزام المنطقي لبيانات التحويل
+        # حساب إجمالي المساحات لكل السجاد
+        total_area = sum(l * w for l, w in zip(self.lengths, self.widths))
+        total_price = round(total_area * self.price_per_m2, 2)
+        
+        if self.paid_amount > total_price and total_price > 0:
+            raise ValueError(f"المبلغ المدفوع ({self.paid_amount}) يتجاوز الإجمالي ({total_price})")
+            
         electronic_methods = ["فودافون كاش", "انستا باي", "تحويل بنكي"]
         if self.payment_method in electronic_methods and not self.payment_ref.strip():
-            raise ValueError(f"بيانات ناقصة: رقم العملية أو الموبايل مطلوب عند استخدام {self.payment_method}")
+            raise ValueError(f"رقم العملية مطلوب عند استخدام {self.payment_method}")
             
         return self
 
