@@ -55,6 +55,16 @@
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
                 <div>
+                    <label class="form-label">سعر المتر (ج)</label>
+                    <input name="price_per_m2" type="number" step="0.5" min="0" value="0" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">المدفوع مقدماً (ج)</label>
+                    <input name="paid_amount" type="number" step="1" min="0" value="0" class="form-input">
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
+                <div>
                     <label class="form-label">تاريخ التسليم</label>
                     <input name="delivery_date" type="date" class="form-input">
                 </div>
