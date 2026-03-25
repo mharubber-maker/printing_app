@@ -88,21 +88,30 @@ async def add_user(request: Request, full_name: str = Form(...), username: str =
 @router.get("/shipping/data", response_class=HTMLResponse)
 async def get_shipping_data(request: Request, db: Session = Depends(get_db)):
     from domain.orders.model import Order
-    # جلب الطلبات الجاهزة للشحن فقط
     ready_orders = db.query(Order).filter(Order.status == 'جاهز').all()
-    
-    # تجميع الطلبات حسب شركة الشحن (Grouping)
     companies = {}
     for o in ready_orders:
-        comp = o.shipping_company.strip() if o.shipping_company else "مناديب حرة (بدون شركة)"
-        if comp not in companies:
-            companies[comp] = []
+        comp = o.shipping_company.strip() if o.shipping_company else ""
+        if comp not in companies: companies[comp] = []
         companies[comp].append(o)
-        
-    return templates.TemplateResponse("partials/shipping_data.html", {
-        "request": request, 
-        "companies": companies
-    })
+    return templates.TemplateResponse("partials/shipping_data.html", {"request": request, "companies": companies})
+
+@router.post("/{order_id}/shipping", response_class=HTMLResponse)
+async def update_shipping_company(request: Request, order_id: str, shipping_company: str = Form(""), db: Session = Depends(get_db)):
+    from domain.orders.model import Order
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if order:
+        order.shipping_company = shipping_company
+        db.commit()
+    
+    # إعادة تحميل شاشة الشحن بعد التحديث
+    ready_orders = db.query(Order).filter(Order.status == 'جاهز').all()
+    companies = {}
+    for o in ready_orders:
+        comp = o.shipping_company.strip() if o.shipping_company else ""
+        if comp not in companies: companies[comp] = []
+        companies[comp].append(o)
+    return templates.TemplateResponse("partials/shipping_data.html", {"request": request, "companies": companies})
 
 @router.get("/shipping", response_class=HTMLResponse)
 async def shipping_page(request: Request):

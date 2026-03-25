@@ -1,22 +1,60 @@
 <div style="animation: fadeIn 0.5s;">
-    {% if not companies %}
-        <div style="text-align: center; padding: 60px; background: var(--bg-card); border-radius: 12px; border: 1px dashed var(--border-color);">
-            <div style="font-size: 48px; margin-bottom: 16px;">✨</div>
-            <h3 style="color: var(--text-primary);">لا توجد طلبات جاهزة للشحن حالياً</h3>
-            <p style="color: var(--text-muted); font-size: 13px;">قم بتغيير حالة الطلبات من صفحة (إدارة الطلبات) إلى "جاهز ✨" لتظهر هنا.</p>
+    {% set unassigned = companies.get('', []) %}
+    {% if unassigned %}
+    <div style="background: var(--bg-card); border: 1px solid #ef4444; border-radius: 12px; margin-bottom: 24px; overflow: hidden; box-shadow: 0 4px 15px rgba(239,68,68,0.1);">
+        <div style="padding: 16px 20px; background: linear-gradient(135deg, #3a1010, #1a0505); border-bottom: 1px solid #ef4444; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="margin: 0; color: #ef4444; font-size: 18px;">⚠️ طلبات جاهزة (تنتظر تحديد المندوب)</h3>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">إجمالي الطلبات المعلقة: <strong style="color: white;">{{ unassigned|length }}</strong></div>
+            </div>
         </div>
-    {% else %}
-        <div style="display: grid; gap: 24px;">
-            {% for comp_name, orders in companies.items() %}
+        <table style="width: 100%; text-align: right; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.2);">
+                    <th style="padding: 12px 20px; font-size: 12px; color: #ef4444;">رقم الطلب</th>
+                    <th style="padding: 12px 20px; font-size: 12px; color: #ef4444;">العميل والعنوان</th>
+                    <th style="padding: 12px 20px; font-size: 12px; color: #ef4444;">المطلوب تحصيله</th>
+                    <th style="padding: 12px 20px; font-size: 12px; color: #ef4444;">إسناد لشركة الشحن</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in unassigned %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 12px 20px; font-size: 13px; font-weight: bold; color: var(--text-primary);">{{ o.number }}</td>
+                    <td style="padding: 12px 20px; font-size: 13px;">
+                        <div>{{ o.customer.name }}</div>
+                        <div style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">{{ o.customer.address or 'بدون عنوان' }}</div>
+                    </td>
+                    <td style="padding: 12px 20px; font-size: 13px;">
+                        {% set paid = o.payments | sum(attribute='amount') %}
+                        <strong style="color: #10b981;">{{ o.total_price - paid }} ج</strong>
+                    </td>
+                    <td style="padding: 12px 20px;">
+                        <form hx-post="/orders/{{ o.id }}/shipping" hx-target="#shipping-container" style="display:flex; gap:8px; margin:0;">
+                            <input type="text" name="shipping_company" placeholder="اسم المندوب أو الشركة" required style="padding:8px 10px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-body); color:var(--text-primary); font-size:12px; outline:none; width: 160px; transition:0.2s;" onfocus="this.style.borderColor='var(--gold-dark)'" onblur="this.style.borderColor='var(--border-color)'">
+                            <button type="submit" style="background:var(--gold-dark); color:#1a0f00; border:none; padding:8px 12px; font-size:12px; font-weight:bold; border-radius:6px; cursor:pointer; transition:0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">إرسال للمندوب 🚚</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% set assigned_count = 0 %}
+    <div style="display: grid; gap: 24px;">
+        {% for comp_name, orders in companies.items() %}
+            {% if comp_name != '' %}
+            {% set assigned_count = assigned_count + 1 %}
             <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
                 <div style="padding: 16px 20px; background: linear-gradient(135deg, #1e293b, #0f172a); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <h3 style="margin: 0; color: #38bdf8; font-size: 18px;">🏢 {{ comp_name }}</h3>
+                        <h3 style="margin: 0; color: #38bdf8; font-size: 18px;">🏢 بوليصة: {{ comp_name }}</h3>
                         <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">إجمالي الشحنات: <strong style="color: white;">{{ orders|length }}</strong></div>
                     </div>
-                    
-                    <button onclick="sendToWhatsApp('{{ comp_name }}', '{{ orders|length }}')" class="btn" style="background: #25D366; color: white; border: none; font-size: 14px; padding: 10px 16px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2);">
-                        💬 إرسال بوليصة مجمعة (WhatsApp)
+                    <button onclick="sendToWhatsApp('{{ comp_name }}', '{{ orders|length }}')" class="btn" style="background: #25D366; color: white; border: none; font-size: 14px; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2);">
+                        💬 إرسال عبر (WhatsApp)
                     </button>
                 </div>
 
@@ -25,8 +63,8 @@
                         <tr style="border-bottom: 1px solid var(--border-color); background: var(--bg-table-head);">
                             <th style="padding: 12px 20px; font-size: 12px; color: var(--gold-dark);">رقم الطلب</th>
                             <th style="padding: 12px 20px; font-size: 12px; color: var(--gold-dark);">العميل والهاتف</th>
-                            <th style="padding: 12px 20px; font-size: 12px; color: var(--gold-dark);">العنوان</th>
                             <th style="padding: 12px 20px; font-size: 12px; color: var(--gold-dark);">التحصيل (COD)</th>
+                            <th style="padding: 12px 20px; font-size: 12px; color: var(--gold-dark);">إجراء</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,56 +74,58 @@
                             <td style="padding: 12px 20px; font-size: 13px;">
                                 <div class="c-name">{{ o.customer.name }}</div>
                                 <div class="c-phone" style="color: var(--text-muted); font-size: 11px;">{{ o.customer.phone }}</div>
+                                <div class="c-address" style="display:none;">{{ o.customer.address or 'لم يحدد' }}</div>
                             </td>
-                            <td class="c-address" style="padding: 12px 20px; font-size: 12px; color: var(--text-muted);">{{ o.customer.address or 'لم يحدد' }}</td>
                             <td style="padding: 12px 20px; font-size: 13px;">
                                 {% set paid = o.payments | sum(attribute='amount') %}
-                                {% set remaining = o.total_price - paid %}
-                                <strong class="c-cod" style="color: #ef4444;">{{ remaining }} ج.م</strong>
+                                <strong class="c-cod" style="color: #ef4444;">{{ o.total_price - paid }} ج.م</strong>
+                            </td>
+                            <td style="padding: 12px 20px;">
+                                <form hx-post="/orders/{{ o.id }}/shipping" hx-target="#shipping-container" style="margin:0;">
+                                    <input type="hidden" name="shipping_company" value="">
+                                    <button type="submit" style="background:none; border:none; color:#ef4444; text-decoration:underline; font-size:11px; cursor:pointer;" title="إلغاء الإسناد وسحب الطلب">إلغاء التعيين ❌</button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+    {% if assigned_count == 0 and not unassigned %}
+         <div style="text-align: center; padding: 60px; background: var(--bg-card); border-radius: 12px; border: 1px dashed var(--border-color);">
+            <div style="font-size: 48px; margin-bottom: 16px;">✨</div>
+            <h3 style="color: var(--text-primary);">لا توجد طلبات جاهزة للشحن حالياً</h3>
+            <p style="color: var(--text-muted); font-size: 13px;">بمجرد تغيير حالة أي طلب من إدارة الطلبات إلى "جاهز ✨"، سيظهر هنا تلقائياً لتقوم بتوزيعه.</p>
         </div>
     {% endif %}
 </div>
 
 <script>
     function sendToWhatsApp(companyName, count) {
-        // تجهيز ترويسة الرسالة
         let message = `*📦 بوليصة شحن مجمعة - بيت الطباعة والألوان*\n`;
-        message += `*الشركة/المندوب:* ${companyName}\n`;
-        message += `*إجمالي الشحنات:* ${count}\n`;
+        message += `*المندوب/الشركة:* ${companyName}\n`;
+        message += `*عدد الشحنات:* ${count}\n`;
         message += `------------------------------\n\n`;
-
-        // تجميع بيانات الطلبات من الجدول مباشرة
         const safeClassName = companyName.replace(/\s+/g, '');
         const rows = document.querySelectorAll('.order-data-row-' + safeClassName);
-        
         rows.forEach((row, index) => {
             const orderNum = row.cells[0].innerText.trim();
             const cName = row.querySelector('.c-name').innerText.trim();
             const cPhone = row.querySelector('.c-phone').innerText.trim();
             const cAddress = row.querySelector('.c-address').innerText.trim();
             const cCod = row.querySelector('.c-cod').innerText.trim();
-
-            message += `*${index + 1}) طلب رقم:* ${orderNum}\n`;
-            message += `👤 *الاسم:* ${cName}\n`;
-            message += `📞 *الهاتف:* ${cPhone}\n`;
-            message += `📍 *العنوان:* ${cAddress}\n`;
-            message += `💰 *التحصيل (COD):* ${cCod}\n\n`;
+            message += `*${index + 1}) طلب:* ${orderNum}\n`;
+            message += `👤 *العميل:* ${cName}\n`;
+            message += `📞 *تليفون:* ${cPhone}\n`;
+            message += `📍 *عنوان:* ${cAddress}\n`;
+            message += `💰 *التحصيل:* ${cCod}\n\n`;
         });
-
         message += `------------------------------\n`;
-        message += `*برجاء تأكيد الاستلام وتجهيز المندوب.* 🙏`;
-
-        // تحويل النص لتنسيق يقبله المتصفح والواتساب
-        const encodedMessage = encodeURIComponent(message);
-        
-        // فتح واتساب ويب أو التطبيق
-        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+        message += `*برجاء تأكيد الاستلام.* 🙏`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
     }
 </script>
