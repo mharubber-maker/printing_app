@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}مركز الشحن والتوزيع{% endblock %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <h2 style="color: var(--text-primary); margin: 0;">مركز الشحن والتوزيع 🚚</h2>
+</div>
+
+<div id="shipping-container" hx-get="/orders/shipping/data" hx-trigger="load" hx-swap="innerHTML">
+    <div style="text-align: center; padding: 60px; color: var(--gold-dark);">
+        <div style="font-size: 40px; margin-bottom: 16px; animation: spin 2s linear infinite;">📦</div>
+        <h3>جاري تجميع بوالص الشحن...</h3>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0); } }
+</style>
+{% endblock %}
