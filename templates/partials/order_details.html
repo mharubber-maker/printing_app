@@ -1,0 +1,47 @@
+<div class="modal-overlay" style="backdrop-filter: blur(4px); z-index: 10000; animation: fadeIn 0.2s;">
+    <div class="modal-card" style="max-width: 700px; max-height: 85vh; overflow-y: auto; position: relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:16px;">
+            <h2 style="color:var(--gold-dark); margin:0; font-size: 18px;">👁️ تفاصيل الطلب: {{ order.number }}</h2>
+            <button onclick="this.closest('.modal-overlay').remove()" style="background:var(--bg-body); border:1px solid var(--border-color); border-radius:50%; width:32px; height:32px; color:#ef4444; font-size:16px; font-weight:bold; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff';">✖</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <div style="background: var(--bg-body); padding: 12px; border-radius: 8px; border:1px solid var(--border-color);">
+                <strong style="color:var(--text-muted); font-size:11px;">👤 العميل:</strong>
+                <div style="font-size:14px; font-weight:bold; margin-top:4px;">{{ order.customer.name }} <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">({{ order.customer.phone }})</span></div>
+            </div>
+            <div style="background: var(--bg-body); padding: 12px; border-radius: 8px; border:1px solid var(--border-color);">
+                <strong style="color:var(--text-muted); font-size:11px;">💰 الموقف المالي:</strong>
+                <div style="font-size:14px; color:var(--gold-dark); font-weight:bold; margin-top:4px;">الإجمالي: {{ order.total_price }} ج | المتبقي: {{ order.remaining_amount }} ج</div>
+            </div>
+        </div>
+
+        <h3 style="color:var(--text-primary); font-size:14px; margin-bottom:12px; border-right: 3px solid var(--gold-dark); padding-right:8px;">🖼️ صور التصميمات والمقاسات</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-bottom: 24px;">
+            {% for item in order.items %}
+                <div style="background:var(--bg-body); border:1px solid var(--border-color); border-radius:8px; overflow:hidden; text-align:center; padding-bottom:8px; transition:0.2s;" onmouseover="this.style.borderColor='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border-color)'">
+                    {% if item.image_path %}
+                        <img src="/{{ item.image_path }}" style="width:100%; height:120px; object-fit:cover; border-bottom:1px solid var(--border-color); cursor:pointer;" onclick="window.open(this.src, '_blank')" title="اضغط لفتح الصورة بحجمها الطبيعي">
+                    {% else %}
+                        <div style="width:100%; height:120px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.02); color:var(--text-muted); font-size:11px; border-bottom:1px solid var(--border-color);">بدون صورة</div>
+                    {% endif %}
+                    <div style="margin-top:8px; font-size:12px; font-weight:bold; color:var(--text-primary);">{{ item.length }}m × {{ item.width }}m</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% set receipt_img = none %}
+        {% for img in order.images %}
+            {% if img.caption == 'إيصال دفع' %}
+                {% set receipt_img = img %}
+            {% endif %}
+        {% endfor %}
+
+        {% if receipt_img %}
+            <h3 style="color:var(--text-primary); font-size:14px; margin-bottom:12px; border-right: 3px solid #10b981; padding-right:8px;">📸 إيصال التحويل المرفق</h3>
+            <div style="text-align:center; background:var(--bg-body); padding:12px; border-radius:8px; border:1px dashed #10b981;">
+                <img src="/{{ receipt_img.image_path }}" style="max-height: 250px; border-radius:6px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.5);" onclick="window.open(this.src, '_blank')" title="اضغط لتكبير الإيصال">
+            </div>
+        {% endif %}
+    </div>
+</div>

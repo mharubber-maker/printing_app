@@ -173,3 +173,10 @@ async def add_user(
         "request": request, 
         "users": users
     })
+
+# 👇 مسار العرض السريع (Quick View) 👇
+@router.get("/{order_id}/details", response_class=HTMLResponse)
+async def get_order_details(request: Request, order_id: str, service: OrderService = Depends(get_service)):
+    order = service.repo.get_by_id(order_id)
+    if not order: raise HTTPException(status_code=404, detail="الطلب غير موجود")
+    return templates.TemplateResponse("partials/order_details.html", {"request": request, "order": order})
