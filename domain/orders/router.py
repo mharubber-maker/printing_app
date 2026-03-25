@@ -53,25 +53,38 @@ async def get_invoice_pdf(request: Request, order_id: str, service: OrderService
 # 👇 مسار لوحة القيادة المالية (HTMX Endpoint) 👇
 @router.get("/finance/dashboard-data", response_class=HTMLResponse)
 async def get_finance_dashboard(request: Request, db: Session = Depends(get_db)):
-    from domain.orders.model import Transaction
+    from domain.orders.model import Transaction, Order, OrderItem
     from sqlalchemy import desc
-    # جلب كل المعاملات من الأحدث للأقدم
-    transactions = db.query(Transaction).order_by(desc(Transaction.date)).all()
     
-    # حساب المجاميع
+    # حسابات دفتر الأستاذ
+    transactions = db.query(Transaction).order_by(desc(Transaction.date)).all()
     total_in = sum(float(t.amount) for t in transactions if t.type == 'in')
     total_out = sum(float(t.amount) for t in transactions if t.type == 'out')
     net_profit = total_in - total_out
+    
+    # حسابات الإنتاج (السجاد والأمتار)
+    items = db.query(OrderItem).all()
+    total_rugs = len(items)
+    total_area = sum(float(i.area or 0) for i in items if i.area)
+    
+    # حسابات التحصيل (المدفوع والمتبقي)
+    orders = db.query(Order).all()
+    total_expected = sum(float(o.total_price or 0) for o in orders if o.total_price)
+    total_paid = sum(float(o.paid_amount or 0) for o in orders)
+    total_remaining = total_expected - total_paid
     
     return templates.TemplateResponse("partials/finance_data.html", {
         "request": request,
         "transactions": transactions,
         "total_in": f"{total_in:,.2f}",
         "total_out": f"{total_out:,.2f}",
-        "net_profit": f"{net_profit:,.2f}"
+        "net_profit": f"{net_profit:,.2f}",
+        "total_rugs": total_rugs,
+        "total_area": f"{total_area:,.2f}",
+        "total_paid": f"{total_paid:,.2f}",
+        "total_remaining": f"{total_remaining:,.2f}"
     })
 
-# 👇 مسار جلب لوحة التسويق 👇
 @router.get("/marketing/data", response_class=HTMLResponse)
 async def get_marketing_data(request: Request, db: Session = Depends(get_db)):
     from domain.orders.model import Transaction
