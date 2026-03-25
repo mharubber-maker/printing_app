@@ -33,9 +33,22 @@
             </select>
         </form>
     </td>
+    
     <td style="padding:10px 16px;">
-        <button hx-delete="/orders/{{ order.id }}" hx-target="#order-row-{{ order.id }}" hx-swap="outerHTML" hx-confirm="متأكد إنك عايز تمسح الطلب ده؟" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px;border-radius:4px;transition:0.2s" onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'" onmouseout="this.style.background='none'" title="حذف الطلب">
-            🗑️
-        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <a href="/orders/{{ order.id }}/pdf" target="_blank" 
+               style="background:rgba(245,166,35,0.1); color:var(--gold-dark); text-decoration:none; padding:4px 10px; border-radius:4px; font-size:11px; font-weight:bold; border:1px solid var(--gold-dark); transition:0.2s;"
+               onmouseover="this.style.background='var(--gold-dark)'; this.style.color='#fff';"
+               onmouseout="this.style.background='rgba(245,166,35,0.1)'; this.style.color='var(--gold-dark)';"
+               title="طباعة الفاتورة">
+                🖨️ فاتورة
+            </a>
+            
+            <button hx-delete="/orders/{{ order.id }}" hx-target="#order-row-{{ order.id }}" hx-swap="outerHTML" hx-confirm="متأكد إنك عايز تمسح الطلب ده؟" 
+                    style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px;border-radius:4px;transition:0.2s" 
+                    onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'" onmouseout="this.style.background='none'" title="حذف الطلب">
+                🗑️
+            </button>
+        </div>
     </td>
 </tr>
