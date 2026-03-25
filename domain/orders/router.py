@@ -133,3 +133,13 @@ async def get_order_details(request: Request, order_id: str, service: OrderServi
     remaining_amount = float(order.total_price or 0) - paid
     
     return templates.TemplateResponse("partials/order_details.html", {"request": request, "order": order, "remaining_amount": remaining_amount})
+
+
+from fastapi.responses import FileResponse
+import os
+
+@router.get("/media")
+async def serve_media(path: str):
+    if os.path.exists(path):
+        return FileResponse(path)
+    raise HTTPException(status_code=404, detail="الملف غير موجود على السيرفر")

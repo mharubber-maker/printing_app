@@ -56,12 +56,19 @@
     <div class="main-wrapper" id="main-content">
         <header class="top-navbar">
             <button onclick="toggleSidebar()" style="background: var(--gold-dark); color: #1a0f00; border: none; padding: 8px 16px; font-size: 16px; font-weight: 900; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(245, 166, 35, 0.3);">
-                <span style="font-size: 20px;">☰</span> إخفاء/إظهار القائمة
+                <span style="font-size: 20px;">☰</span> القائمة
             </button>
-            <div class="user-profile">
-                <span>👨‍💼 أهلاً بك يا حسام</span>
+            
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <button onclick="openModal()" style="background: #10b981; color: white; border: none; padding: 8px 16px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); transition: 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    ➕ طلب جديد
+                </button>
+                <div class="user-profile">
+                    <span>👨‍💼 أهلاً بك يا حسام</span>
+                </div>
             </div>
         </header>
+
         <main class="content-area">
             {% block content %}{% endblock %}
         </main>
