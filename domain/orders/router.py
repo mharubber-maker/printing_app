@@ -144,8 +144,21 @@ async def update_status(request: Request, order_id: str, new_status: str = Form(
     return templates.TemplateResponse("partials/order_row.html", {"request": request, "order": order})
 
 @router.delete("/{order_id}", response_class=HTMLResponse)
-async def delete_order(order_id: str, service: OrderService = Depends(get_service)):
-    service.delete_order(order_id)
+async def delete_order(order_id: str, db: Session = Depends(get_db), service: OrderService = Depends(get_service)):
+    from domain.orders.model import Transaction
+    
+    # 1. جلب بيانات الطلب قبل حذفه لمعرفة رقمه
+    order = service.repo.get_by_id(order_id)
+    if order:
+        order_num = order.number
+        
+        # 2. البحث في دفتر الخزينة عن أي معاملة تحتوي على رقم الطلب ومسحها (Cascade Delete)
+        db.query(Transaction).filter(Transaction.description.like(f"%{order_num}%")).delete(synchronize_session=False)
+        db.commit()
+        
+        # 3. الآن يمكننا حذف الطلب وتفاصيل السجاد بأمان
+        service.delete_order(order_id)
+        
     return HTMLResponse("")
 
 @router.get("/{order_id}/pdf", response_class=HTMLResponse)
