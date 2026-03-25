@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form, Depends, UploadFile, File
+from fastapi import APIRouter, Request, Form, Depends, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -6,7 +6,7 @@ from config.database import get_db
 from domain.orders.repository import OrderRepository
 from domain.orders.service import OrderService
 from domain.orders.schema import OrderCreate, OrderUpdateStatus
-from datetime import date
+from datetime import date, datetime
 from typing import Optional, List
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -20,7 +20,7 @@ async def add_order(
     customer_name: str = Form(...), customer_phone: str = Form(""), customer_address: str = Form(""),
     lengths: List[float] = Form(...), widths: List[float] = Form(...), prices_per_m2: List[float] = Form(...),
     item_images: List[UploadFile] = File(default=[]),
-    transfer_receipt: UploadFile = File(None), # 👇 استقبال صورة التحويل
+    transfer_receipt: UploadFile = File(None),
     paid_amount: float = Form(0), payment_method: str = Form("كاش"), payment_ref: str = Form(""),
     shipping_company: str = Form(""), receipt_date: Optional[str] = Form(None), delivery_date: Optional[str] = Form(None),
     notes: str = Form(""), service: OrderService = Depends(get_service),
@@ -42,3 +42,15 @@ async def update_status(request: Request, order_id: str, new_status: str = Form(
 @router.delete("/{order_id}", response_class=HTMLResponse)
 async def delete_order(order_id: str, service: OrderService = Depends(get_service)):
     service.delete_order(order_id); return HTMLResponse("")
+
+# 👇 المسار المفقود الذي نسيناه لعرض الفاتورة 👇
+@router.get("/{order_id}/pdf", response_class=HTMLResponse)
+async def get_invoice_pdf(request: Request, order_id: str, service: OrderService = Depends(get_service)):
+    # 1. البحث عن الطلب في قاعدة البيانات
+    order = service.repo.get_by_id(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="الطلب غير موجود")
+    
+    # 2. إرسال الوقت الحالي وتفاصيل الطلب إلى قالب الفاتورة
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    return templates.TemplateResponse("pdf/invoice.html", {"request": request, "order": order, "now": now})
