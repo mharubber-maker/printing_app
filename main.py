@@ -115,3 +115,8 @@ async def marketing_page(request: Request):
 @app.get("/settings")
 async def settings_page(request: Request):
     return Jinja2Templates(directory="templates").TemplateResponse("pages/settings.html", {"request": request})
+
+@app.get("/shipping")
+async def shipping_page_main(request: Request):
+    from fastapi.templating import Jinja2Templates
+    return Jinja2Templates(directory="templates").TemplateResponse("pages/shipping.html", {"request": request})
