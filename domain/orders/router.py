@@ -113,3 +113,50 @@ async def add_marketing_expense(
         "campaigns": campaigns, 
         "total_spent": f"{total_spent:,.2f}"
     })
+
+# 👇 مسار جلب لوحة الإعدادات 👇
+@router.get("/settings/data", response_class=HTMLResponse)
+async def get_settings_data(request: Request, db: Session = Depends(get_db)):
+    from domain.orders.model import User
+    from sqlalchemy import desc
+    # جلب قائمة الموظفين
+    users = db.query(User).order_by(desc(User.created_at)).all()
+    
+    return templates.TemplateResponse("partials/settings_data.html", {
+        "request": request, 
+        "users": users
+    })
+
+# 👇 مسار إضافة موظف جديد 👇
+@router.post("/settings/users/add", response_class=HTMLResponse)
+async def add_user(
+    request: Request, 
+    full_name: str = Form(...), 
+    username: str = Form(...), 
+    password: str = Form(...), 
+    role: str = Form("موظف"),
+    db: Session = Depends(get_db)
+):
+    from domain.orders.model import User
+    from sqlalchemy import desc
+    from sqlalchemy.exc import IntegrityError
+    import hashlib
+    
+    # تشفير كلمة المرور (Security Best Practice)
+    hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+    
+    new_user = User(full_name=full_name, username=username, password_hash=hashed_pw, role=role)
+    
+    try:
+        db.add(new_user)
+        db.commit()
+    except IntegrityError:
+        db.rollback() # حماية في حال كان اسم المستخدم موجود مسبقاً
+        
+    # إعادة جلب قائمة الموظفين لتحديث الشاشة
+    users = db.query(User).order_by(desc(User.created_at)).all()
+    
+    return templates.TemplateResponse("partials/settings_data.html", {
+        "request": request, 
+        "users": users
+    })

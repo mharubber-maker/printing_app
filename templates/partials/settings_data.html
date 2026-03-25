@@ -1,0 +1,75 @@
+<div style="animation: fadeIn 0.5s; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+        <h3 style="color: var(--gold-dark); margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">🏢 البيانات الأساسية للمطبعة</h3>
+        <div style="display: grid; gap: 16px;">
+            <div>
+                <label class="form-label">الاسم التجاري</label>
+                <input type="text" class="form-input" value="بيت الطباعة والألوان" placeholder="اسم المطبعة">
+            </div>
+            <div>
+                <label class="form-label">رقم الهاتف الأساسي (يظهر في الفاتورة)</label>
+                <input type="text" class="form-input" value="01028688080" placeholder="رقم الهاتف">
+            </div>
+            <div>
+                <label class="form-label">العنوان بالتفصيل</label>
+                <input type="text" class="form-input" value="" placeholder="عنوان مقر العمل">
+            </div>
+            <div>
+                <label class="form-label">ملاحظات الفاتورة الافتراضية</label>
+                <textarea class="form-input" rows="2" placeholder="مثال: البضاعة المباعة لا ترد ولا تستبدل بعد 14 يوم..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="alert('تم حفظ بيانات المطبعة بنجاح ✅')" style="justify-content: center; margin-top: 8px; font-size: 14px;">💾 تحديث بيانات النظام</button>
+        </div>
+    </div>
+
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+        <h3 style="color: var(--gold-dark); margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">👥 إدارة الموظفين والصلاحيات</h3>
+        
+        <form hx-post="/orders/settings/users/add" hx-target="#settings-container" hx-swap="innerHTML" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 8px; border: 1px dashed var(--border-color);">
+            <div style="grid-column: span 2; font-size: 13px; font-weight: bold; color: var(--text-primary); margin-bottom: 4px;">تسجيل موظف جديد:</div>
+            <div><input type="text" name="full_name" required class="form-input" placeholder="الاسم بالكامل"></div>
+            <div><input type="text" name="username" required class="form-input" placeholder="اسم المستخدم (للدخول)"></div>
+            <div><input type="password" name="password" required class="form-input" placeholder="كلمة المرور"></div>
+            <div>
+                <select name="role" class="form-input">
+                    <option value="مدير نظام">مدير نظام (Admin)</option>
+                    <option value="موظف مبيعات">موظف مبيعات</option>
+                    <option value="مصمم">مصمم جرافيك</option>
+                    <option value="فني طباعة">فني إنتاج / طباعة</option>
+                </select>
+            </div>
+            <button type="submit" class="btn" style="grid-column: span 2; justify-content: center; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981;">➕ اعتماد وإضافة الموظف</button>
+        </form>
+
+        <table style="width:100%; text-align:right; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 11px;">
+                    <th style="padding: 8px;">الاسم</th>
+                    <th style="padding: 8px;">اسم المستخدم</th>
+                    <th style="padding: 8px;">الصلاحية</th>
+                    <th style="padding: 8px;">الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 10px 8px; font-size: 13px; font-weight: bold; color: var(--text-primary);">{{ u.full_name }}</td>
+                    <td style="padding: 10px 8px; font-size: 12px; color: var(--text-muted);">@{{ u.username }}</td>
+                    <td style="padding: 10px 8px;">
+                        <span style="font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 4px;
+                            {% if u.role == 'مدير نظام' %} background: rgba(239, 68, 68, 0.1); color: #ef4444;
+                            {% elif u.role == 'مصمم' %} background: rgba(59, 130, 246, 0.1); color: #3b82f6;
+                            {% else %} background: rgba(245, 166, 35, 0.1); color: var(--gold-dark); {% endif %}">
+                            {{ u.role }}
+                        </span>
+                    </td>
+                    <td style="padding: 10px 8px; font-size: 12px; color: #10b981; font-weight: bold;">نشط ✅</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--text-muted);">لم يتم تسجيل أي موظفين حتى الآن.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
