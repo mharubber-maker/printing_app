@@ -23,7 +23,7 @@ class Customer(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(100), nullable=False)
     phone = Column(String(20))
-    address = Column(Text) # العنوان موجود بالفعل
+    address = Column(Text)
     notes = Column(Text)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -39,12 +39,9 @@ class Order(Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     status = Column(String(20), default=OrderStatus.PENDING)
     total_price = Column(Numeric(10, 2), default=0)
-    
-    # 👇 الحقول الجديدة الخاصة بالشحن والمواعيد
     shipping_company = Column(String(100), nullable=True)
     receipt_date = Column(Date, nullable=True) 
     delivery_date = Column(Date, nullable=True)
-    
     notes = Column(Text)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -56,6 +53,7 @@ class Order(Base):
     images = relationship("OrderImage", back_populates="order", cascade="all, delete-orphan")
     payments = relationship("Payment", back_populates="order", cascade="all, delete-orphan")
     logs = relationship("ProductionLog", back_populates="order", cascade="all, delete-orphan")
+    transactions = relationship("Transaction", back_populates="order") # ربط الطلب بالمعاملات المالية
 
     @property
     def paid_amount(self): return sum(float(p.amount or 0) for p in self.payments)
@@ -70,12 +68,12 @@ class OrderItem(Base):
     length = Column(Numeric(8, 2), nullable=False)
     width = Column(Numeric(8, 2), nullable=False)
     area = Column(Numeric(8, 2))
-    price_per_m2 = Column(Numeric(8, 2), default=0)
+    
+    price_per_m2 = Column(Numeric(8, 2), default=0) # سعر البيع للعميل
+    factory_price_per_m2 = Column(Numeric(8, 2), default=0) # 👇 سعر تكلفة المصنع (جديد) 👇
+    
     total = Column(Numeric(10, 2), default=0)
-    
-    # 👇 الحقل الجديد للصورة المستقلة لكل سجادة
     image_path = Column(Text, nullable=True)
-    
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     order = relationship("Order", back_populates="items")
 
@@ -112,3 +110,15 @@ class ProductionLog(Base):
     notes = Column(Text)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     order = relationship("Order", back_populates="logs")
+
+# 👇 جدول المعاملات المالية (دفتر الأستاذ) (جديد) 👇
+class Transaction(Base):
+    __tablename__ = "transactions"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    amount = Column(Numeric(10, 2), nullable=False)
+    type = Column(String(10), nullable=False) # 'in' (إيراد) or 'out' (مصروف)
+    category = Column(String(50), nullable=False) # دعاية, شحن, مصنع, مبيعات عملاء
+    description = Column(Text)
+    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id"), nullable=True)
+    date = Column(DateTime(timezone=True), default=datetime.utcnow)
+    order = relationship("Order", back_populates="transactions")
