@@ -2,378 +2,187 @@
 <html lang="ar" dir="rtl">
 
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فاتورة رقم {{ order.number if order else "" }}</title>
-
-    <meta charset="UTF-8">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Arial", sans-serif;
-            font-size: 13px;
-            color: #1a1008;
-            background: white;
-            padding: 30px;
-            direction: rtl;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Arial", sans-serif; font-size: 13px; color: #1a1008; background: white; padding: 30px; direction: rtl; }
 
         /* ===== HEADER ===== */
-        .header {
-            background: linear-gradient(135deg, #2d1a00, #1a0f00);
-            color: white;
-            padding: 24px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
+        .header { background: linear-gradient(135deg, #2d1a00, #1a0f00); color: white; padding: 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .company-name { font-size: 22px; font-weight: bold; color: #ffd700; }
+        .company-sub { font-size: 12px; color: rgba(245, 166, 35, 0.7); margin-top: 4px; }
+        .invoice-title { font-size: 28px; font-weight: bold; color: #ffd700; text-align: left; }
+        .invoice-number { font-size: 14px; color: rgba(255, 255, 255, 0.7); text-align: left; margin-top: 4px; }
+        .rainbow { height: 4px; background: linear-gradient(90deg, #ff0000, #ff8800, #ffff00, #00ff88, #0088ff, #8800ff); border-radius: 2px; margin-bottom: 24px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-        .company-name {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ffd700;
-        }
-
-        .company-sub {
-            font-size: 12px;
-            color: rgba(245, 166, 35, 0.7);
-            margin-top: 4px;
-        }
-
-        .invoice-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #ffd700;
-            text-align: left;
-        }
-
-        .invoice-number {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: left;
-            margin-top: 4px;
-        }
-
-        /* ===== RAINBOW LINE ===== */
-        .rainbow {
-            height: 4px;
-            background: linear-gradient(90deg, #ff0000, #ff8800, #ffff00, #00ff88, #0088ff, #8800ff);
-            border-radius: 2px;
-            margin-bottom: 24px;
-        }
-
-        /* ===== INFO BOXES ===== */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .info-box {
-            background: #faf6f0;
-            border: 1px solid #e8d8b8;
-            border-radius: 10px;
-            padding: 16px;
-        }
-
-        .info-box-title {
-            font-size: 11px;
-            color: #c9820a;
-            font-weight: bold;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .info-box-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: #1a1008;
-        }
-
-        .info-box-sub {
-            font-size: 12px;
-            color: #888;
-            margin-top: 4px;
-        }
+        /* ===== INFO GRID (3 Columns) ===== */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .info-box { background: #faf6f0; border: 1px solid #e8d8b8; border-radius: 10px; padding: 16px; page-break-inside: avoid; }
+        .info-box-title { font-size: 11px; color: #c9820a; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px dashed #e8d8b8; padding-bottom: 4px; }
+        .info-box-value { font-size: 14px; font-weight: bold; color: #1a1008; margin-bottom: 4px; }
+        .info-box-sub { font-size: 12px; color: #666; margin-top: 4px; }
 
         /* ===== TABLE ===== */
-        .section-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #1a1008;
-            margin-bottom: 10px;
-            padding-right: 8px;
-            border-right: 4px solid #f5a623;
-        }
+        .section-title { font-size: 16px; font-weight: bold; color: #1a1008; margin-bottom: 12px; padding-right: 8px; border-right: 4px solid #f5a623; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        thead tr { background: #2d1a00; color: #ffd700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        thead th { padding: 10px; font-size: 12px; font-weight: bold; text-align: right; border: 1px solid #1a0f00; }
+        tbody tr { border-bottom: 1px solid #f0e8d8; page-break-inside: avoid; }
+        tbody tr:nth-child(even) { background: #fdf8f0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        tbody td { padding: 10px; font-size: 13px; vertical-align: middle; border: 1px solid #f0e8d8; }
+        .item-img { max-width: 60px; max-height: 60px; border-radius: 4px; border: 1px solid #e8d8b8; object-fit: cover; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-        }
+        /* ===== TOTALS & RECEIPT ===== */
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; align-items: start; page-break-inside: avoid; }
+        .totals-box { background: #faf6f0; border: 1px solid #e8d8b8; border-radius: 10px; padding: 16px 24px; }
+        .total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #f0e8d8; }
+        .total-row:last-child { border-bottom: none; font-weight: bold; font-size: 16px; color: #c9820a; padding-top: 10px; }
+        
+        /* ===== RECEIPT IMAGE ===== */
+        .receipt-box { background: #fff; border: 1px dashed #c9820a; border-radius: 10px; padding: 10px; text-align: center; }
+        .receipt-img { max-width: 100%; max-height: 200px; border-radius: 6px; margin-top: 8px; }
 
-        thead tr {
-            background: linear-gradient(135deg, #2d1a00, #1a0f00);
-            color: #ffd700;
-        }
+        .notes-box { background: #faf6f0; border: 1px solid #e8d8b8; border-radius: 10px; padding: 16px; margin-bottom: 24px; font-style: italic; }
+        .footer { text-align: center; color: #aaa; font-size: 11px; border-top: 1px solid #e8d8b8; padding-top: 16px; }
 
-        thead th {
-            padding: 10px 14px;
-            font-size: 12px;
-            font-weight: bold;
-            text-align: right;
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            @page { margin: 1cm; size: A4 portrait; }
         }
-
-        tbody tr {
-            border-bottom: 1px solid #f0e8d8;
-        }
-
-        tbody tr:nth-child(even) {
-            background: #fdf8f0;
-        }
-
-        tbody td {
-            padding: 10px 14px;
-            font-size: 13px;
-        }
-
-        /* ===== TOTALS ===== */
-        .totals {
-            display: flex;
-            justify-content: flex-start;
-            margin-bottom: 24px;
-        }
-
-        .totals-box {
-            background: #faf6f0;
-            border: 1px solid #e8d8b8;
-            border-radius: 10px;
-            padding: 16px 24px;
-            min-width: 280px;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 13px;
-            border-bottom: 1px solid #f0e8d8;
-        }
-
-        .total-row:last-child {
-            border-bottom: none;
-            font-weight: bold;
-            font-size: 15px;
-            color: #c9820a;
-            padding-top: 10px;
-        }
-
-        .total-label {
-            color: #666;
-        }
-
-        .total-value {
-            font-weight: bold;
-        }
-
-        /* ===== STATUS BADGE ===== */
-        .status-badge {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-ongoing {
-            background: #fff8e8;
-            color: #c9820a;
-            border: 1px solid #f5d890;
-        }
-
-        .status-ready {
-            background: #e8fff5;
-            color: #00aa66;
-            border: 1px solid #90f5cc;
-        }
-
-        .status-done {
-            background: #e8f0ff;
-            color: #4466cc;
-            border: 1px solid #99aaee;
-        }
-
-        /* ===== NOTES ===== */
-        .notes-box {
-            background: #faf6f0;
-            border: 1px solid #e8d8b8;
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            text-align: center;
-            color: #aaa;
-            font-size: 11px;
-            border-top: 1px solid #e8d8b8;
-            padding-top: 16px;
-        }
-
-        .footer-gold {
-            color: #c9820a;
-            font-weight: bold;
-        }
+        .print-btn { position: fixed; top: 20px; left: 20px; background: #f5a623; color: #1a0f00; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 1000; transition: 0.2s; }
+        .print-btn:hover { background: #ffb732; transform: scale(1.05); }
     </style>
 </head>
 
 <body>
+    <button class="no-print print-btn" onclick="window.print()">🖨️ طباعة الفاتورة</button>
 
-    <style>
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-        }
-        .print-btn {
-            position: fixed; top: 20px; left: 20px;
-            background: #f5a623; color: #1a0f00;
-            border: none; padding: 10px 20px;
-            font-size: 16px; font-weight: bold; font-family: monospace;
-            border-radius: 8px; cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            z-index: 1000; transition: all 0.2s;
-        }
-        .print-btn:hover { background: #ffb732; transform: scale(1.05); }
-    </style>
-    <button class="no-print print-btn" onclick="window.print()">🖨️ طباعة / حفظ كـ PDF</button>
-    
-
-    <!-- Header -->
     <div class="header">
         <div>
             <div class="company-name">🖨️ بيت الطباعة والألوان</div>
-            <div class="company-sub">نظام إدارة الطلبات</div>
+            <div class="company-sub">لصناعة السجاد والطباعة المتقدمة</div>
         </div>
         <div>
-            <div class="invoice-title">فاتورة</div>
-            <div class="invoice-number">{{ order.number }}</div>
+            <div class="invoice-title">فاتورة ضريبية</div>
+            <div class="invoice-number">رقم: {{ order.number }}</div>
         </div>
     </div>
-
-    <!-- Rainbow Line -->
     <div class="rainbow"></div>
 
-    <!-- Info Grid -->
     <div class="info-grid">
         <div class="info-box">
-            <div class="info-box-title">بيانات العميل</div>
+            <div class="info-box-title">👤 بيانات العميل</div>
             <div class="info-box-value">{{ order.customer.name if order.customer else "—" }}</div>
-            <div class="info-box-sub">📱 {{ order.customer.phone if order.customer and order.customer.phone else "—" }}
-            </div>
+            <div class="info-box-sub">📞 {{ order.customer.phone or "بدون رقم" }}</div>
+            <div class="info-box-sub">📍 {{ order.customer.address or "بدون عنوان" }}</div>
         </div>
+        
         <div class="info-box">
-            <div class="info-box-title">بيانات الطلب</div>
-            <div class="info-box-value">
-                <span
-                    class="status-badge status-{{ 'ongoing' if order.status=='جارى' else 'ready' if order.status=='جاهز' else 'done' }}">
-                    {{ order.status }}
-                </span>
-            </div>
-            <div class="info-box-sub">
-                📅 تاريخ الطلب: {{ order.created_at | date }}
-                {% if order.delivery_date %}
-                | 🚚 التسليم: {{ order.delivery_date | date }}
-                {% endif %}
-            </div>
+            <div class="info-box-title">📅 المواعيد والحالة</div>
+            <div class="info-box-value" style="color:var(--gold-dark)">{{ order.status }}</div>
+            <div class="info-box-sub">📝 تاريخ الطلب: {{ order.created_at.strftime('%Y-%m-%d') }}</div>
+            <div class="info-box-sub">📥 الاستلام: {{ order.receipt_date.strftime('%Y-%m-%d') if order.receipt_date else "غير محدد" }}</div>
+            <div class="info-box-sub">🚚 التسليم: {{ order.delivery_date.strftime('%Y-%m-%d') if order.delivery_date else "غير محدد" }}</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-box-title">💳 الشحن والدفع</div>
+            <div class="info-box-value">شركة الشحن: {{ order.shipping_company or "تسليم بالفرع" }}</div>
+            {% set payment_method = order.payments[0].payment_method if order.payments else "آجل (لم يدفع)" %}
+            <div class="info-box-sub">💰 طريقة الدفع: <strong>{{ payment_method }}</strong></div>
+            {% if order.payments and order.payments[0].notes %}
+            <div class="info-box-sub" style="font-size: 10px;">📌 {{ order.payments[0].notes }}</div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Items Table -->
-    <div class="section-title">تفاصيل الطلب</div>
-    {% if order.items %}
+    <div class="section-title">📦 تفاصيل السجاد والمقاسات</div>
     <table>
         <thead>
             <tr>
-                <th>#</th>
-                <th>الوصف</th>
-                <th>الطول (م)</th>
-                <th>العرض (م)</th>
-                <th>المساحة (م²)</th>
-                <th>سعر المتر</th>
-                <th>الإجمالى</th>
+                <th style="width: 5%;">#</th>
+                <th style="width: 15%; text-align:center;">صورة التصميم</th>
+                <th style="width: 15%;">الطول (م)</th>
+                <th style="width: 15%;">العرض (م)</th>
+                <th style="width: 15%;">المساحة (م²)</th>
+                <th style="width: 15%;">السعر/م²</th>
+                <th style="width: 20%;">الإجمالي</th>
             </tr>
         </thead>
         <tbody>
             {% for item in order.items %}
             <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ item.description or "—" }}</td>
+                <td style="font-weight:bold;">{{ loop.index }}</td>
+                <td style="text-align:center;">
+                    {% if item.image_path %}
+                        <img src="/{{ item.image_path }}" class="item-img" alt="صورة السجادة">
+                    {% else %}
+                        <span style="color:#aaa; font-size:10px;">بدون صورة</span>
+                    {% endif %}
+                </td>
                 <td>{{ item.length }}</td>
                 <td>{{ item.width }}</td>
-                <td>{{ item.area }}</td>
+                <td style="font-weight:bold; color:#c9820a;">{{ item.area }}</td>
                 <td>{{ item.price_per_m2 }} ج</td>
-                <td>{{ item.total }} ج</td>
+                <td style="font-weight:bold;">{{ item.total }} ج</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <table>
-        <thead>
-            <tr>
-                <th>الطلب</th>
-                <th>المساحة</th>
-                <th>الإجمالى</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ order.number }}</td>
-                <td>{{ order.area_display }} م²</td>
-                <td>{{ order.total_price }} ج</td>
-            </tr>
-        </tbody>
-    </table>
-    {% endif %}
 
-    <!-- Totals -->
-    <div class="totals">
+    <div class="bottom-grid">
         <div class="totals-box">
+            <div class="info-box-title" style="margin-bottom:12px;">الحسابات الختامية</div>
             <div class="total-row">
-                <span class="total-label">الإجمالى</span>
-                <span class="total-value">{{ order.total_price }} جنيه</span>
+                <span style="color:#666;">إجمالي المساحة:</span>
+                {% set total_area = order.items | map(attribute='area') | sum | round(2) %}
+                <span style="font-weight:bold;">{{ total_area }} م²</span>
             </div>
             <div class="total-row">
-                <span class="total-label">المدفوع</span>
-                <span class="total-value" style="color:#00aa66">{{ order.paid_amount | currency }} جنيه</span>
+                <span style="color:#666;">الإجمالي العام:</span>
+                <span style="font-weight:bold;">{{ order.total_price }} ج</span>
             </div>
             <div class="total-row">
-                <span class="total-label">المتبقى</span>
-                <span class="total-value">{{ order.remaining_amount | currency }} جنيه</span>
+                <span style="color:#666;">المدفوع مقدماً:</span>
+                <span style="font-weight:bold; color:#00aa66;">{{ order.paid_amount }} ج</span>
             </div>
+            <div class="total-row">
+                <span style="color:#666;">المبلغ المتبقي:</span>
+                {% if order.remaining_amount <= 0 %}
+                <span style="color:#00aa66;">خالص ✅</span>
+                {% else %}
+                <span>{{ order.remaining_amount }} ج</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            {% set receipt_img = none %}
+            {% for img in order.images %}
+                {% if img.caption == 'إيصال دفع' %}
+                    {% set receipt_img = img %}
+                {% endif %}
+            {% endfor %}
+
+            {% if receipt_img %}
+            <div class="receipt-box">
+                <div class="info-box-title" style="border:none;">📸 إيصال التحويل المرفق</div>
+                <img src="/{{ receipt_img.image_path }}" class="receipt-img" alt="إيصال الدفع">
+            </div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Notes -->
     {% if order.notes %}
-    <div class="section-title">ملاحظات</div>
+    <div class="section-title">📝 ملاحظات إضافية</div>
     <div class="notes-box">{{ order.notes }}</div>
     {% endif %}
 
-    <!-- Footer -->
     <div class="footer">
-        <span class="footer-gold">بيت الطباعة والألوان</span> —
-        تم إنشاء هذه الفاتورة تلقائياً بتاريخ {{ now }}
+        <span style="color:#c9820a; font-weight:bold;">نظام إدارة الغزال</span> — تم إصدار هذه الفاتورة إلكترونياً
     </div>
-
 </body>
-
 </html>
