@@ -99,3 +99,19 @@ if __name__ == "__main__":
         port=7860,
         reload=settings.DEBUG,
     )
+
+
+from fastapi import Request
+from fastapi.templating import Jinja2Templates
+
+@app.get("/finance")
+async def finance_page(request: Request):
+    return Jinja2Templates(directory="templates").TemplateResponse("pages/finance.html", {"request": request})
+
+@app.get("/marketing")
+async def marketing_page(request: Request):
+    return Jinja2Templates(directory="templates").TemplateResponse("pages/marketing.html", {"request": request})
+
+@app.get("/settings")
+async def settings_page(request: Request):
+    return Jinja2Templates(directory="templates").TemplateResponse("pages/settings.html", {"request": request})
