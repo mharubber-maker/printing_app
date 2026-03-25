@@ -1,174 +1,153 @@
-<div id="main-modal" class="modal-overlay hidden" style="backdrop-filter: blur(4px);">
-    <div class="modal-card" style="max-width: 600px; max-height: 85vh; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; padding-right: 5px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-5); position: sticky; top: 0; background: var(--bg-card); z-index: 10; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
-            <h2 style="font-size:var(--text-lg);font-weight:var(--font-black);color:var(--text-primary)">➕ طلب جديد</h2>
-            <button onclick="closeModal()" style="background:var(--bg-body);border:1px solid var(--border-color);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:0.2s">✕</button>
+<div id="main-modal" class="modal-overlay hidden" style="z-index: 99999;">
+    <div class="modal-card" style="max-width: 800px; padding: 0; display: flex; flex-direction: column; max-height: 90vh;">
+        
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-color); background: var(--bg-table-head); display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0;">
+            <h2 style="margin: 0; font-size: 20px; color: var(--gold-dark);">➕ إضافة طلب جديد</h2>
+            <button type="button" onclick="closeModal()" style="background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
         </div>
 
-        <form id="order-form" hx-post="/orders/add" hx-target="#orders-table-body" hx-swap="afterbegin" hx-encoding="multipart/form-data" style="display:flex;flex-direction:column;gap:var(--space-4)">
-            
-            <div style="background:var(--bg-body); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
-                <label class="form-label" style="color:var(--gold-dark); margin-bottom:10px;">👤 بيانات العميل</label>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3); margin-bottom:10px;">
-                    <div><input name="customer_name" type="text" placeholder="اسم العميل *" required class="form-input"></div>
-                    <div><input name="customer_phone" type="tel" placeholder="رقم التليفون" class="form-input"></div>
-                </div>
-                <div><input name="customer_address" type="text" placeholder="عنوان العميل بالتفصيل" class="form-input"></div>
-            </div>
-
-            <div style="background:var(--bg-body); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
-                <label class="form-label" style="color:var(--gold-dark); margin-bottom:10px;">🚚 تفاصيل الشحن والمواعيد</label>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3); margin-bottom:10px;">
-                    <div><label class="form-label" style="font-size:11px;">تاريخ الاستلام (الطلب)</label><input name="receipt_date" type="date" class="form-input"></div>
-                    <div><label class="form-label" style="font-size:11px;">تاريخ التسليم (النهائي)</label><input name="delivery_date" type="date" class="form-input"></div>
-                </div>
-                <div><input name="shipping_company" type="text" placeholder="شركة الشحن (اختياري)" class="form-input"></div>
-            </div>
-
-            <div style="background:var(--bg-card); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <label class="form-label" style="margin:0;">🧶 السجاد والصور</label>
-                    <button type="button" onclick="addRugRow()" style="background:var(--gold-subtle); color:var(--gold-dark); border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">+ إضافة مقاس</button>
-                </div>
-                <div id="rugs-container">
-                    <div class="rug-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto auto;gap:var(--space-2);align-items:center;margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed var(--border-color);">
-                        <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول" required class="form-input smart-calc"></div>
-                        <div><input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض" required class="form-input smart-calc"></div>
-                        <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="سعر العميل" required class="form-input smart-calc"></div>
-                        <div><input name="factory_prices_per_m2" type="number" step="0.5" min="0" placeholder="سعر المصنع" required class="form-input" style="border-color:#ef4444; background:rgba(239, 68, 68, 0.05);"></div>
+        <div style="padding: 24px; overflow-y: auto; flex: 1; background: var(--bg-body);">
+            <form hx-post="/orders/add" hx-target="#orders-table-body" hx-swap="beforeend" enctype="multipart/form-data" onsubmit="setTimeout(() => { closeModal(); this.reset(); }, 500);">
+                
+                <div style="margin-bottom: 24px; background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="margin: 0 0 16px 0; font-size: 14px; color: #38bdf8; border-right: 3px solid #38bdf8; padding-right: 8px;">👤 بيانات العميل</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div>
-                            <label style="cursor:pointer; background:var(--bg-body); padding:8px; border-radius:6px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center;" title="إرفاق صورة السجادة">
-                                📷 <input type="file" name="item_images" accept="image/*" style="display:none;" onchange="this.parentElement.style.borderColor='var(--gold-dark)'">
-                            </label>
+                            <label class="form-label">اسم العميل *</label>
+                            <input type="text" name="customer_name" class="form-input" required placeholder="مثال: أحمد محمد">
                         </div>
-                        <button type="button" onclick="removeRugRow(this)" style="background:none; border:none; color:var(--text-muted); padding:5px; cursor:not-allowed;" disabled>✕</button>
+                        <div>
+                            <label class="form-label">رقم التليفون</label>
+                            <input type="text" name="customer_phone" class="form-input" placeholder="مثال: 01012345678">
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label class="form-label">العنوان بالتفصيل</label>
+                            <input type="text" name="customer_address" class="form-input" placeholder="المحافظة - المدينة - الشارع - رقم العمارة">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3); background: var(--bg-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                <div>
-                    <label class="form-label">المدفوع مقدماً (ج)</label>
-                    <input id="calc-paid" name="paid_amount" type="number" step="1" min="0" value="0" class="form-input smart-calc">
+                <div style="margin-bottom: 24px; background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0; font-size: 14px; color: var(--gold-dark); border-right: 3px solid var(--gold-dark); padding-right: 8px;">🧶 تفاصيل السجاد (التصميم والمقاس)</h3>
+                        <button type="button" onclick="addRugItem()" style="background: rgba(245,166,35,0.1); color: var(--gold-dark); border: 1px solid var(--gold-dark); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='var(--gold-dark)'; this.style.color='#1a0f00';">+ إضافة سجادة أخرى</button>
+                    </div>
+                    
+                    <div id="rug-items-container">
+                        <div class="rug-item" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px; background: rgba(0,0,0,0.2); border: 1px dashed var(--border-color); border-radius: 8px; margin-bottom: 12px;">
+                            <div>
+                                <label class="form-label">الطول (م)</label>
+                                <input type="number" step="0.01" name="lengths" class="form-input" required placeholder="مثال: 3" oninput="calculateTotals()">
+                            </div>
+                            <div>
+                                <label class="form-label">العرض (م)</label>
+                                <input type="number" step="0.01" name="widths" class="form-input" required placeholder="مثال: 2" oninput="calculateTotals()">
+                            </div>
+                            <div>
+                                <label class="form-label">سعر متر البيع (ج)</label>
+                                <input type="number" step="0.01" name="prices_per_m2" class="form-input" required placeholder="للعميل" oninput="calculateTotals()">
+                            </div>
+                            <div>
+                                <label class="form-label">تكلفة المتر (ج)</label>
+                                <input type="number" step="0.01" name="factory_prices_per_m2" class="form-input" required placeholder="للمصنع">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <label class="form-label">صورة التصميم</label>
+                                <input type="file" name="item_images" class="form-input" accept="image/*" style="padding: 6px; background: var(--bg-body);">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="form-label">طريقة الدفع 💳</label>
-                    <select id="payment-method-select" name="payment_method" class="form-input">
-                        <option value="كاش">كاش 💵</option>
-                        <option value="فودافون كاش">فودافون كاش 🔴</option>
-                        <option value="انستا باي">انستا باي 🟣</option>
-                        <option value="تحويل بنكي">تحويل بنكي 🏦</option>
-                    </select>
+
+                <div style="margin-bottom: 24px; background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="margin: 0 0 16px 0; font-size: 14px; color: #a855f7; border-right: 3px solid #a855f7; padding-right: 8px;">🚚 المواعيد وملاحظات التشغيل</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px;">
+                        <div>
+                            <label class="form-label">تاريخ التسليم المتفق عليه</label>
+                            <input type="date" name="delivery_date" class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">ملاحظات (تظهر في الفاتورة)</label>
+                            <input type="text" name="notes" class="form-input" placeholder="أي تفاصيل إضافية...">
+                        </div>
+                    </div>
                 </div>
-                <div id="payment-ref-container" style="display: none; grid-column: span 2;">
-                    <input id="payment-ref-input" name="payment_ref" type="text" placeholder="رقم العملية / الموبايل *" class="form-input" style="margin-bottom:8px;">
-                    <label style="cursor:pointer; background:rgba(245,166,35,0.1); color:var(--gold-dark); padding:8px; border-radius:6px; border:1px dashed var(--gold-dark); display:block; text-align:center; font-size:12px; font-weight:bold;" title="إرفاق صورة التحويل">
-                        📸 إرفاق سكرين شوت التحويل
-                        <input type="file" name="transfer_receipt" accept="image/*" style="display:none;" onchange="this.parentElement.style.background='var(--gold-dark)'; this.parentElement.style.color='#fff';">
-                    </label>
+
+                <div style="margin-bottom: 16px; background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="margin: 0 0 16px 0; font-size: 14px; color: #10b981; border-right: 3px solid #10b981; padding-right: 8px;">💵 الحسابات والتحصيل</h3>
+                    
+                    <div style="display: flex; justify-content: space-around; background: rgba(16, 185, 129, 0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); margin-bottom: 16px;">
+                        <div style="text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-muted); display: block;">المساحة الإجمالية المقدرة</span>
+                            <strong id="live-total-area" style="color: var(--text-primary); font-size: 22px;">0.00 م²</strong>
+                        </div>
+                        <div style="text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-muted); display: block;">الإجمالي العام للطلب</span>
+                            <strong id="live-total-price" style="color: var(--gold-dark); font-size: 22px;">0.00 ج</strong>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label class="form-label">المدفوع مقدماً (عربون)</label>
+                            <input type="number" step="0.01" name="paid_amount" class="form-input" value="0">
+                        </div>
+                        <div>
+                            <label class="form-label">طريقة الدفع</label>
+                            <select name="payment_method" class="form-input" style="padding: 10px 12px; height: 40px; cursor: pointer;">
+                                <option value="كاش">كاش (نقدي)</option>
+                                <option value="فودافون كاش">فودافون كاش</option>
+                                <option value="إنستاباي">إنستاباي (InstaPay)</option>
+                                <option value="تحويل بنكي">تحويل بنكي</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">إيصال التحويل (إن وجد)</label>
+                            <input type="file" name="transfer_receipt" class="form-input" accept="image/*" style="padding: 6px; background: var(--bg-body);">
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <textarea name="notes" rows="2" placeholder="أى ملاحظات إضافية على الطلب..." class="form-input" style="resize:none"></textarea>
-
-            <div style="background:var(--bg-body); border:1px solid rgba(245,166,35,0.4); border-radius:var(--radius-md); padding:var(--space-3); text-align:center; display: flex; justify-content: space-between; position: sticky; bottom: 0; z-index: 10;">
-                <div><p style="font-size:var(--text-xs);color:var(--text-muted)">المساحة الإجمالية</p><p id="res-area" style="font-weight:bold;color:var(--text-primary)">0 م²</p></div>
-                <div><p style="font-size:var(--text-xs);color:var(--text-muted)">الإجمالي العام</p><p id="res-total" style="font-weight:bold;color:var(--text-primary)">0 ج</p></div>
-                <div><p style="font-size:var(--text-xs);color:var(--text-muted)">حالة الدفع</p><p id="res-status" style="font-weight:bold;color:red">لم يدفع 🔴</p></div>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:var(--text-base); margin-top: 5px;">💾 حفظ الطلب بالكامل</button>
-        </form>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 20px; background: var(--bg-card); margin: -24px -24px 0 -24px; padding: 16px 24px; border-radius: 0 0 16px 16px;">
+                    <button type="button" onclick="closeModal()" class="btn" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-color);">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" style="background: #10b981; color: white; border: none; font-size: 15px; padding: 10px 24px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">💾 حفظ وإنشاء الطلب</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 <script>
-    const modalObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => { document.body.style.overflow = mutation.target.classList.contains('hidden') ? '' : 'hidden'; });
-    });
-    modalObserver.observe(document.getElementById('main-modal'), { attributes: true, attributeFilter: ['class'] });
-
-    function addRugRow() {
-        const container = document.getElementById('rugs-container');
-        const row = document.createElement('div');
-        row.className = 'rug-row';
-        row.style = 'display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto auto;gap:var(--space-2);align-items:center;margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed var(--border-color);';
-        row.innerHTML = `
-            <div><input name="lengths" type="number" step="0.1" min="0.1" placeholder="الطول" required class="form-input smart-calc"></div>
-            <div><input name="widths" type="number" step="0.1" min="0.1" placeholder="العرض" required class="form-input smart-calc"></div>
-            <div><input name="prices_per_m2" type="number" step="0.5" min="0" placeholder="سعر العميل" required class="form-input smart-calc"></div>
-                        <div><input name="factory_prices_per_m2" type="number" step="0.5" min="0" placeholder="سعر المصنع" required class="form-input" style="border-color:#ef4444; background:rgba(239, 68, 68, 0.05);"></div>
-            <div><label style="cursor:pointer; background:var(--bg-body); padding:8px; border-radius:6px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center;">📷 <input type="file" name="item_images" accept="image/*" style="display:none;" onchange="this.parentElement.style.borderColor='var(--gold-dark)'"></label></div>
-            <button type="button" onclick="removeRugRow(this)" style="background:none; border:none; color:#ef4444; padding:5px; cursor:pointer; font-weight:bold;">✕</button>
-        `;
-        container.appendChild(row); updateRemoveButtons();
+    function addRugItem() {
+        const container = document.getElementById('rug-items-container');
+        const itemHtml = `
+            <div class="rug-item" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px; background: rgba(0,0,0,0.2); border: 1px dashed var(--border-color); border-radius: 8px; margin-bottom: 12px; position: relative; animation: fadeIn 0.3s;">
+                <button type="button" onclick="this.parentElement.remove(); calculateTotals();" style="position: absolute; top: -10px; left: -10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">✖</button>
+                <div><label class="form-label">الطول (م)</label><input type="number" step="0.01" name="lengths" class="form-input" required oninput="calculateTotals()"></div>
+                <div><label class="form-label">العرض (م)</label><input type="number" step="0.01" name="widths" class="form-input" required oninput="calculateTotals()"></div>
+                <div><label class="form-label">سعر متر البيع</label><input type="number" step="0.01" name="prices_per_m2" class="form-input" required oninput="calculateTotals()"></div>
+                <div><label class="form-label">تكلفة المتر</label><input type="number" step="0.01" name="factory_prices_per_m2" class="form-input" required></div>
+                <div style="grid-column: 1 / -1;"><label class="form-label">صورة التصميم</label><input type="file" name="item_images" class="form-input" accept="image/*" style="padding: 6px; background: var(--bg-body);"></div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', itemHtml);
     }
 
-    function removeRugRow(btn) {
-        const container = document.getElementById('rugs-container');
-        if (container.children.length > 1) { btn.parentElement.remove(); updateRemoveButtons(); document.body.dispatchEvent(new Event('input', {bubbles: true})); }
+    function calculateTotals() {
+        const items = document.querySelectorAll('.rug-item');
+        let totalArea = 0;
+        let totalPrice = 0;
+        
+        items.forEach(item => {
+            const l = parseFloat(item.querySelector('[name="lengths"]').value) || 0;
+            const w = parseFloat(item.querySelector('[name="widths"]').value) || 0;
+            const p = parseFloat(item.querySelector('[name="prices_per_m2"]').value) || 0;
+            
+            const area = l * w;
+            totalArea += area;
+            totalPrice += area * p;
+        });
+        
+        document.getElementById('live-total-area').innerText = totalArea.toFixed(2) + ' م²';
+        document.getElementById('live-total-price').innerText = totalPrice.toFixed(2) + ' ج';
     }
-
-    function updateRemoveButtons() {
-        const rows = document.querySelectorAll('.rug-row');
-        const firstBtn = rows[0].querySelector('button');
-        if (rows.length === 1) { firstBtn.style.color = 'var(--text-muted)'; firstBtn.style.cursor = 'not-allowed'; firstBtn.disabled = true;
-        } else { firstBtn.style.color = '#ef4444'; firstBtn.style.cursor = 'pointer'; firstBtn.disabled = false; }
-    }
-
-    document.body.addEventListener('input', function(e) {
-        if (e.target.id === 'payment-method-select') {
-            const refContainer = document.getElementById('payment-ref-container');
-            const refInput = document.getElementById('payment-ref-input');
-            if(e.target.value !== 'كاش') {
-                refContainer.style.display = 'block'; refInput.setAttribute('required', 'true');
-            } else {
-                refContainer.style.display = 'none'; refInput.removeAttribute('required'); refInput.value = '';
-            }
-        }
-
-        if (e.target.classList.contains('smart-calc') || e.target.id === 'calc-paid') {
-            const lengths = document.querySelectorAll('input[name="lengths"]');
-            const widths = document.querySelectorAll('input[name="widths"]');
-            const prices = document.querySelectorAll('input[name="prices_per_m2"]');
-            const paidInput = document.getElementById('calc-paid');
-            let paid = parseFloat(paidInput?.value) || 0;
-
-            let total_area = 0; let total_price = 0;
-            for(let i=0; i<lengths.length; i++){
-                const l = parseFloat(lengths[i].value) || 0; const w = parseFloat(widths[i].value) || 0; const p = parseFloat(prices[i].value) || 0;
-                const area = l * w; total_area += area; total_price += (area * p);
-            }
-
-            if (paid > total_price && total_price > 0) { paidInput.value = total_price; paid = total_price; }
-            const remaining = total_price - paid;
-
-            document.getElementById('res-area').innerText = total_area.toFixed(2) + ' م²';
-            document.getElementById('res-total').innerText = total_price.toFixed(2) + ' ج';
-
-            const statusEl = document.getElementById('res-status');
-            if (total_price === 0) { statusEl.innerText = 'بانتظار السعر ⏳'; statusEl.style.color = 'var(--text-muted)'; }
-            else if (remaining <= 0) { statusEl.innerText = 'خالص ✅'; statusEl.style.color = '#10b981'; }
-            else if (paid > 0) { statusEl.innerText = `متبقي: ${remaining.toFixed(1)} ج 🟡`; statusEl.style.color = '#f5a623'; }
-            else { statusEl.innerText = `آجل (لم يدفع) 🔴`; statusEl.style.color = '#ef4444'; }
-        }
-    });
-
-    document.body.addEventListener('htmx:afterRequest', function(evt) {
-        if (evt.target.id === 'order-form' && evt.detail.successful) {
-            if (typeof closeModal === 'function') { closeModal(); } else { document.getElementById('main-modal').classList.add('hidden'); }
-            document.getElementById('order-form').reset();
-            const container = document.getElementById('rugs-container');
-            while (container.children.length > 1) { container.removeChild(container.lastChild); }
-            updateRemoveButtons();
-            document.getElementById('res-area').innerText = '0 م²'; document.getElementById('res-total').innerText = '0 ج';
-            document.getElementById('res-status').innerText = 'لم يدفع 🔴'; document.getElementById('res-status').style.color = '#ef4444';
-            document.getElementById('payment-ref-container').style.display = 'none';
-            document.querySelectorAll('input[type="file"]').forEach(input => input.parentElement.style.borderColor = 'var(--border-color)');
-            const emptyMsg = document.querySelector('#orders-table-body td[colspan="6"]');
-            if (emptyMsg) emptyMsg.parentElement.style.display = 'none';
-        }
-    });
 </script>
-
-<script>document.querySelectorAll('[name="shipping_company"]').forEach(el => { if(el.closest('div')) el.closest('div').style.display = 'none'; });</script>
