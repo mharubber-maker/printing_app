@@ -1,13 +1,20 @@
 {% extends "base.html" %}
 {% block title %}الخزينة والحسابات{% endblock %}
 {% block content %}
-<div style="animation: fadeIn 0.5s;">
-    <h2 style="color: var(--gold-dark); margin-bottom: 20px;">💼 الخزينة والحسابات (المركز المالي)</h2>
-    <div style="background: var(--bg-card); padding: 60px 20px; border-radius: 16px; text-align: center; border: 1px dashed var(--gold-dark); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <div style="font-size: 64px; margin-bottom: 16px; animation: bounce 2s infinite;">🚧</div>
-        <h3 style="color: var(--text-primary); font-size: 24px;">جاري بناء المحرك المالي...</h3>
-        <p style="color: var(--text-muted); margin-top: 12px; font-size: 14px;">سنقوم هنا بعرض دفتر الأستاذ، الأرباح الصافية، وتكلفة المصنع والشحن.</p>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <h2 style="color: var(--text-primary); margin: 0;">الخزينة والحسابات 📊</h2>
+    <button class="btn btn-primary" style="font-size: 12px; padding: 6px 12px; opacity: 0.5; cursor: not-allowed;" title="سيتم تفعيلها قريباً">➕ إضافة مصروف يدوي</button>
+</div>
+
+<div hx-get="/orders/finance/dashboard-data" hx-trigger="load" hx-swap="innerHTML">
+    <div style="text-align: center; padding: 60px; color: var(--gold-dark);">
+        <div style="font-size: 40px; margin-bottom: 16px; animation: spin 2s linear infinite;">⚙️</div>
+        <h3>جاري جلب البيانات من الخزينة المركزية...</h3>
     </div>
 </div>
-<style>@keyframes fadeIn {from{opacity:0;}to{opacity:1;}} @keyframes bounce {0%, 100%{transform:translateY(0);} 50%{transform:translateY(-10px);}}</style>
+
+<style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 {% endblock %}

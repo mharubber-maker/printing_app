@@ -49,3 +49,24 @@ async def get_invoice_pdf(request: Request, order_id: str, service: OrderService
     if not order: raise HTTPException(status_code=404, detail="الطلب غير موجود")
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     return templates.TemplateResponse("pdf/invoice.html", {"request": request, "order": order, "now": now})
+
+# 👇 مسار لوحة القيادة المالية (HTMX Endpoint) 👇
+@router.get("/finance/dashboard-data", response_class=HTMLResponse)
+async def get_finance_dashboard(request: Request, db: Session = Depends(get_db)):
+    from domain.orders.model import Transaction
+    from sqlalchemy import desc
+    # جلب كل المعاملات من الأحدث للأقدم
+    transactions = db.query(Transaction).order_by(desc(Transaction.date)).all()
+    
+    # حساب المجاميع
+    total_in = sum(float(t.amount) for t in transactions if t.type == 'in')
+    total_out = sum(float(t.amount) for t in transactions if t.type == 'out')
+    net_profit = total_in - total_out
+    
+    return templates.TemplateResponse("partials/finance_data.html", {
+        "request": request,
+        "transactions": transactions,
+        "total_in": f"{total_in:,.2f}",
+        "total_out": f"{total_out:,.2f}",
+        "net_profit": f"{net_profit:,.2f}"
+    })
