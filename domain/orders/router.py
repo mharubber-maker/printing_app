@@ -70,3 +70,46 @@ async def get_finance_dashboard(request: Request, db: Session = Depends(get_db))
         "total_out": f"{total_out:,.2f}",
         "net_profit": f"{net_profit:,.2f}"
     })
+
+# 👇 مسار جلب لوحة التسويق 👇
+@router.get("/marketing/data", response_class=HTMLResponse)
+async def get_marketing_data(request: Request, db: Session = Depends(get_db)):
+    from domain.orders.model import Transaction
+    from sqlalchemy import desc
+    # جلب معاملات الدعاية فقط
+    campaigns = db.query(Transaction).filter(Transaction.category == 'دعاية').order_by(desc(Transaction.date)).all()
+    total_spent = sum(float(c.amount) for c in campaigns)
+    
+    return templates.TemplateResponse("partials/marketing_data.html", {
+        "request": request, 
+        "campaigns": campaigns, 
+        "total_spent": f"{total_spent:,.2f}"
+    })
+
+# 👇 مسار إضافة مصروف إعلاني جديد 👇
+@router.post("/marketing/add", response_class=HTMLResponse)
+async def add_marketing_expense(
+    request: Request, 
+    amount: float = Form(...), 
+    platform: str = Form(...), 
+    description: str = Form(...), 
+    db: Session = Depends(get_db)
+):
+    from domain.orders.model import Transaction
+    from sqlalchemy import desc
+    
+    # حفظ المصروف في دفتر الأستاذ
+    full_desc = f"{platform} | {description}"
+    new_expense = Transaction(amount=amount, type="out", category="دعاية", description=full_desc)
+    db.add(new_expense)
+    db.commit()
+    
+    # إعادة جلب البيانات لتحديث الشاشة
+    campaigns = db.query(Transaction).filter(Transaction.category == 'دعاية').order_by(desc(Transaction.date)).all()
+    total_spent = sum(float(c.amount) for c in campaigns)
+    
+    return templates.TemplateResponse("partials/marketing_data.html", {
+        "request": request, 
+        "campaigns": campaigns, 
+        "total_spent": f"{total_spent:,.2f}"
+    })

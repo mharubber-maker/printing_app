@@ -1,0 +1,68 @@
+<div style="animation: fadeIn 0.5s;">
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 24px;">
+        <div style="background: linear-gradient(135deg, #2d1a00, #1a0f00); border: 1px solid var(--gold-dark); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(245, 166, 35, 0.15);">
+            <div style="font-size: 48px; margin-bottom: 12px;">💸</div>
+            <div style="color: var(--gold-dark); font-size: 14px; font-weight: bold; margin-bottom: 8px;">إجمالي المنصرف على الإعلانات</div>
+            <div style="color: white; font-size: 36px; font-weight: 900;">{{ total_spent }} <span style="font-size: 16px; color: rgba(245,166,35,0.5);">ج.م</span></div>
+            <div style="color: var(--text-muted); font-size: 11px; margin-top: 12px; text-align: center;">هذا الرقم مخصوم تلقائياً من صافي أرباحك في الخزينة</div>
+        </div>
+
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
+            <div style="color: var(--text-primary); font-size: 16px; font-weight: bold; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">➕ تسجيل حملة إعلانية جديدة</div>
+            
+            <form hx-post="/orders/marketing/add" hx-target="#marketing-container" hx-swap="innerHTML" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label class="form-label">مبلغ الحملة (ج.م) *</label>
+                    <input type="number" name="amount" step="1" min="1" required class="form-input" placeholder="مثال: 500">
+                </div>
+                <div>
+                    <label class="form-label">المنصة الإعلانية *</label>
+                    <select name="platform" class="form-input" required>
+                        <option value="فيسبوك (Facebook)">🟦 فيسبوك (Facebook)</option>
+                        <option value="انستجرام (Instagram)">🟪 انستجرام (Instagram)</option>
+                        <option value="جوجل (Google Ads)">🟥 جوجل (Google Ads)</option>
+                        <option value="تيك توك (TikTok)">⬛ تيك توك (TikTok)</option>
+                        <option value="مطبوعات وتوزيع">🖨️ مطبوعات ورقية</option>
+                    </select>
+                </div>
+                <div style="grid-column: span 2;">
+                    <label class="form-label">اسم الحملة / وصف مقتضب *</label>
+                    <input type="text" name="description" required class="form-input" placeholder="مثال: إعلان ممول لخصومات عيد الأم">
+                </div>
+                <div style="grid-column: span 2;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; font-size: 14px; padding: 10px;">💾 حفظ وتسجيل المصروف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div style="background:var(--bg-card); border-radius:12px; overflow:hidden; border:1px solid var(--border-color);">
+        <div style="padding:16px 20px; background:var(--bg-table-head); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:15px; font-weight:bold; color:var(--text-primary)">📊 سجل الحملات الإعلانية</span>
+        </div>
+        
+        <table style="width:100%; border-collapse:collapse; text-align:right;">
+            <thead>
+                <tr style="border-bottom:1px solid var(--border-color);">
+                    <th style="padding:12px 16px; font-size:11px; color:var(--text-muted);">التاريخ</th>
+                    <th style="padding:12px 16px; font-size:11px; color:var(--text-muted);">المنصة / الوصف</th>
+                    <th style="padding:12px 16px; font-size:11px; color:var(--text-muted);">التكلفة</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in campaigns %}
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition: 0.2s;" onmouseover="this.style.backgroundColor='var(--bg-table-hover)'" onmouseout="this.style.backgroundColor='transparent'">
+                    <td style="padding:12px 16px; font-size:12px; color:var(--text-primary);">{{ c.date.strftime('%Y-%m-%d') }}</td>
+                    <td style="padding:12px 16px; font-size:13px; color:var(--gold-dark); font-weight:bold;">{{ c.description }}</td>
+                    <td style="padding:12px 16px; font-weight:bold; font-size:14px; color:#ef4444;">- {{ c.amount }} ج</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align:center; padding:40px; color:var(--text-muted);">لم يتم تسجيل أي مصاريف إعلانية حتى الآن.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
