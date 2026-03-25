@@ -18,16 +18,16 @@ def get_service(db: Session = Depends(get_db)) -> OrderService: return OrderServ
 async def add_order(
     request: Request,
     customer_name: str = Form(...), customer_phone: str = Form(""), customer_address: str = Form(""),
-    lengths: List[float] = Form(...), widths: List[float] = Form(...), prices_per_m2: List[float] = Form(...),
-    item_images: List[UploadFile] = File(default=[]),
-    transfer_receipt: UploadFile = File(None),
+    lengths: List[float] = Form(...), widths: List[float] = Form(...), 
+    prices_per_m2: List[float] = Form(...), factory_prices_per_m2: List[float] = Form(...),
+    item_images: List[UploadFile] = File(default=[]), transfer_receipt: UploadFile = File(None),
     paid_amount: float = Form(0), payment_method: str = Form("كاش"), payment_ref: str = Form(""),
     shipping_company: str = Form(""), receipt_date: Optional[str] = Form(None), delivery_date: Optional[str] = Form(None),
     notes: str = Form(""), service: OrderService = Depends(get_service),
 ):
     data = OrderCreate(
         customer_name=customer_name, customer_phone=customer_phone, customer_address=customer_address,
-        lengths=lengths, widths=widths, prices_per_m2=prices_per_m2,
+        lengths=lengths, widths=widths, prices_per_m2=prices_per_m2, factory_prices_per_m2=factory_prices_per_m2,
         paid_amount=paid_amount, payment_method=payment_method, payment_ref=payment_ref,
         shipping_company=shipping_company, receipt_date=date.fromisoformat(receipt_date) if receipt_date else None,
         delivery_date=date.fromisoformat(delivery_date) if delivery_date else None, notes=notes
@@ -43,14 +43,9 @@ async def update_status(request: Request, order_id: str, new_status: str = Form(
 async def delete_order(order_id: str, service: OrderService = Depends(get_service)):
     service.delete_order(order_id); return HTMLResponse("")
 
-# 👇 المسار المفقود الذي نسيناه لعرض الفاتورة 👇
 @router.get("/{order_id}/pdf", response_class=HTMLResponse)
 async def get_invoice_pdf(request: Request, order_id: str, service: OrderService = Depends(get_service)):
-    # 1. البحث عن الطلب في قاعدة البيانات
     order = service.repo.get_by_id(order_id)
-    if not order:
-        raise HTTPException(status_code=404, detail="الطلب غير موجود")
-    
-    # 2. إرسال الوقت الحالي وتفاصيل الطلب إلى قالب الفاتورة
+    if not order: raise HTTPException(status_code=404, detail="الطلب غير موجود")
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     return templates.TemplateResponse("pdf/invoice.html", {"request": request, "order": order, "now": now})
