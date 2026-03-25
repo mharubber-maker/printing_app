@@ -48,18 +48,33 @@
         }
 
         .sidebar-header {
-            padding: var(--space-5);
+            padding: var(--space-4);
             text-align: center;
             border-bottom: 1px solid var(--border-color);
             background: linear-gradient(135deg, #2d1a00, #1a0f00);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 👇 تنسيق اللوجو الدائري الاحترافي 👇 */
+        .brand-logo {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            border: 2px solid var(--gold-dark);
+            margin-bottom: 12px;
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(245, 166, 35, 0.3);
+            background-color: #1a0f00;
         }
 
         .sidebar-header h1 {
             color: var(--gold-dark);
-            font-size: 22px;
+            font-size: 20px;
             margin: 0;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .nav-links {
@@ -82,11 +97,16 @@
             font-size: 14px;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            transform: translateX(-3px);
+        }
+
+        .nav-link.active {
             background-color: var(--gold-subtle);
             color: var(--gold-dark);
-            transform: translateX(-5px);
             border-right: 4px solid var(--gold-dark);
+            transform: translateX(-5px);
         }
 
         /* ===== MAIN CONTENT ===== */
@@ -141,20 +161,22 @@
 
     <aside class="sidebar">
         <div class="sidebar-header">
-            <h1>🖨️ الغزال للطباعة</h1>
+            <img src="/static/img/logo.jpg" alt="اللوجو" class="brand-logo" onerror="this.src='https://via.placeholder.com/85/1a0f00/f5a623?text=Logo'">
+            <h1>بيت الطباعة والألوان</h1>
             <p style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 6px;">ERP System v2.0</p>
         </div>
+        
         <nav class="nav-links">
-            <a href="/" class="nav-link active">
+            <a href="/" class="nav-link">
                 <span style="font-size: 18px;">📊</span> إدارة الطلبات
             </a>
-            <a href="#" class="nav-link">
+            <a href="/finance" class="nav-link">
                 <span style="font-size: 18px;">💼</span> الخزينة والحسابات
             </a>
-            <a href="#" class="nav-link">
+            <a href="/marketing" class="nav-link">
                 <span style="font-size: 18px;">📢</span> الدعاية والإعلان
             </a>
-            <a href="#" class="nav-link">
+            <a href="/settings" class="nav-link">
                 <span style="font-size: 18px;">⚙️</span> الإعدادات
             </a>
         </nav>
@@ -177,6 +199,22 @@
     <script>
         function openModal() { document.getElementById('main-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('main-modal').classList.add('hidden'); }
+        
+        // 👇 سكربت ذكي لتنشيط الزر بناءً على الرابط الحالي 👇
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentPath = window.location.pathname;
+            const links = document.querySelectorAll('.nav-link');
+            
+            links.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                
+                // إذا كان المسار يطابق الرابط، أو نحن في الرئيسية وإدارة الطلبات
+                if (currentPath === href || (currentPath.startsWith('/orders') && href === '/')) {
+                    link.classList.add('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>
